@@ -2,7 +2,7 @@
 
 One tap each morning sends last night's sleep, recent activity and your work calendar
 to the diary. Built in Apple's **Shortcuts** app; nothing to install.
-Not yet tested on a real iPhone: if a step looks different, note where.
+Being checked on a real iPhone; steps marked ✔ match what the iPhone shows.
 
 ## Permissions
 The first run asks to read **Health** (Sleep, Steps, Exercise, Active Energy, Workouts)
@@ -13,9 +13,13 @@ Settings → Privacy & Security → **Health → Shortcuts** and **Calendars →
 Date format used everywhere below: **Format Date → Custom →** `yyyy-MM-dd'T'HH:mm`
 (for day-only values: `yyyy-MM-dd`).
 
+**Putting actions inside a Repeat:** a new action always lands at the bottom. Press and
+hold it, then drag it up between *Repeat with Each* and *End Repeat*.
+
 **A. Sleep**
-1. *Find Health Samples* where **Type is Sleep Analysis** and **Start Date is in the last 2 days**,
-   sort by Start Date, oldest first.
+1. ✔ *Find Health Samples* where **Type is Sleep** (iOS calls it "Sleep", not "Sleep
+   Analysis") and **Start Date is in the last 7 days**. 7 days back-fills mornings you
+   skipped. **Sort by: None** is fine; the diary sorts.
 2. *Repeat with Each* result:
    - *Format Date* (Repeat Item → Start Date, custom format) → rename **S**
    - *Format Date* (Repeat Item → End Date, custom format) → rename **E**
@@ -26,13 +30,13 @@ Date format used everywhere below: **Format Date → Custom →** `yyyy-MM-dd'T'
 **B. Activity** (repeat this block for each type)
 - Types and line names: **Steps** → `STEPS`, **Exercise Time** (may be called Exercise
   Minutes) → `EXERCISE`, **Active Energy** → `ENERGY`.
-1. *Find Health Samples* where **Type is Steps** and **Start Date is in the last 2 days**,
+1. *Find Health Samples* where **Type is Steps** and **Start Date is in the last 7 days**,
    **Group By: Day**.
 2. *Repeat with Each*: *Format Date* (Start Date, `yyyy-MM-dd`) → *Text*
    `STEPS|` date `|` Repeat Item → **Value** → *Add to Variable* **Lines**. End Repeat.
 
 **C. Workouts** (skip if your Shortcuts has no Workouts type)
-- *Find Health Samples* where **Type is Workouts**, last 2 days → Repeat: *Text*
+- *Find Health Samples* where **Type is Workouts**, last 7 days → Repeat: *Text*
   `WORKOUT|` start `|` end `|` Repeat Item → **Type** (or **Name**) → *Add to Variable* **Lines**.
 
 **D. Work calendar**
@@ -45,11 +49,12 @@ Date format used everywhere below: **Format Date → Custom →** `yyyy-MM-dd'T'
    → *Add to Variable* **Lines**. End Repeat.
 
 **E. Send it to the diary**
+Put these after the last *End Repeat* (not inside it).
 1. *Combine Text*: **Lines** with **New Lines**.
-2. *Text*: `DIARY-HEALTH 1` (new line) *Combined Text*.
-3. *URL Encode* that Text.
-4. *Text*: `https://chromedigi.github.io/Diary/#health=` *URL Encoded Text*.
-5. *Open URLs*.
+2. *URL Encode* the Combined Text.
+3. *Text*: `https://chromedigi.github.io/Diary/#health=` *URL Encoded Text* (no space between).
+4. *Open URLs*.
+5. Tap ▶ to test. It works when the diary shows "Imported N nights of sleep".
 
 Then: shortcut **⋯ → Add to Home Screen**. Tap it each morning.
 
@@ -58,10 +63,11 @@ The part after `#` stays on your phone (browsers never send it to a server). The
 saves it, clears it from the address bar and opens today's check-in.
 - Sleep: fills last night (bedtime, wake, asleep, awake). Nights you typed or edited keep
   your values. Sleep Score isn't imported; type it if you want it.
-- Activity: per day; this morning's import completes yesterday.
+- Activity: per day, last 7 days; this morning's import completes yesterday.
 - Work calendar: today + 7 days, replaced on every import.
 
 ## Format reference
+The `DIARY-HEALTH 1` first line is optional; the diary ignores it.
 ```
 DIARY-HEALTH 1
 SLEEP|2026-10-23T23:41|2026-10-24T01:10|Core
