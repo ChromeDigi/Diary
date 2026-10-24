@@ -26,6 +26,35 @@ with no framework, dependencies or build step.
 Open `index.html` in a browser, or serve the folder with any static server.
 Nothing needs installing.
 
+## Working style
+
+### Communication
+- Report extremely concisely. Sacrifice grammar for concision.
+- Ambiguous request → ask ONE clarifying question before doing anything.
+- Evidence before confidence: claim something works/is done only after verifying it
+  (ran it, tested it, read the output). Say what was not verified.
+
+### Run it like an engineering team
+- Project knowledge lives in docs, not chat history. Docs go in `docs/`:
+  - `docs/plan.md`: roadmap, split into phases
+  - `docs/decisions.md`: key decisions + why
+  - `docs/phases/<n>-<name>.md`: spec + status for each phase
+- Workflow per phase (or one group of related changes):
+  1. **Plan**: write/update the phase doc first.
+  2. **Execute**: read the docs + relevant code, then implement only that phase.
+  3. **Review + test**: check the diff, run the app, verify.
+  4. **Wrap up**: update the docs (status, decisions, what's next), commit, push,
+     give a short final review.
+- One session = one phase. When it's done, the session is done; the next phase starts
+  in a fresh session that reads the docs.
+- Continue in the same session only for closely related concurrent work while the
+  context is fresh. Don't resume a long, old session hours later; start fresh from the docs.
+
+### Efficiency
+- Read only the files needed; no broad re-reading of the codebase.
+- Don't repeat known context back to the user.
+- Prefer small, focused changes and commits.
+
 ## Rules
 
 - **The GitHub repo (ChromeDigi/Diary) is public.** Never commit real diary content,
