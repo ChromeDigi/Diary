@@ -140,6 +140,7 @@ function openRewards() {
   app.classList.add('editing');
   renderList();
   renderRewards();
+  $('rewardTiles').querySelectorAll('.num').forEach(countUp);
 }
 
 // ---------- Celebrations ----------

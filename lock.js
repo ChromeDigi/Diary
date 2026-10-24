@@ -85,6 +85,7 @@ function applyBundle(b) {
     if (ISO_DATE.test(week) && r && typeof r === 'object') reports[week] = cleanReport(r);
   });
   talkItems = (Array.isArray(b.talkItems) ? b.talkItems : []).map(cleanTalk).filter(Boolean);
+  animateList = true;
   renderList();
   document.dispatchEvent(new Event('diary:unlocked'));
 }

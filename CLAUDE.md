@@ -15,6 +15,7 @@ with no framework, dependencies or build step.
 - `lock.js`: optional passcode lock (Web Crypto PBKDF2 → AES-GCM; loaded right after `app.js`)
 - `report.js`: weekly report, 💬 bring-to-therapy list, goal (loaded after `lock.js`,
   uses its globals; SVG charts)
+- `fx.js`: logo tilt, starfield, number count-up (loaded after `lock.js`)
 - `rewards.js`: totals, badges, palettes, confetti, daily prompt (loaded last; all
   derived from existing data). `app.js` fires `diary:changed`, `diary:checkin-done`,
   `diary:entry-opened`, `diary:imported` events that these files listen to.

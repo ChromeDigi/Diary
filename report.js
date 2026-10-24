@@ -18,6 +18,7 @@ const reportEl = $('report');
 const hiddenLines = new Set();
 let weekOffset = 0; // 0 = this week, -1 = last week, …
 let notesTimer = null;
+let countedWeek = null; // week whose tile numbers already counted up
 
 // ---------- Week math (local dates as YYYY-MM-DD) ----------
 
@@ -125,6 +126,9 @@ function renderTiles(week, prev) {
   count.append(el('div', `delta ${d > 0 ? 'good' : d < 0 ? 'bad' : 'same'}`,
     `${d > 0 ? '▲' : d < 0 ? '▼' : '='} ${Math.abs(d)} vs last week`));
   $('tiles').replaceChildren(...tiles, count);
+  // Numbers count up when the report opens or the week changes, not on every redraw.
+  if (countedWeek !== week.start) $('tiles').querySelectorAll('.num').forEach(countUp);
+  countedWeek = week.start;
 }
 
 function renderLegend() {
@@ -389,6 +393,7 @@ function openReport() {
   void reportEl.offsetWidth; // restart the swing-in animation
   reportEl.classList.add('swing');
   app.classList.add('editing');
+  countedWeek = null;
   renderList();
   renderReport();
 }

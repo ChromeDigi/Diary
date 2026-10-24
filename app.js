@@ -40,6 +40,8 @@ let reports = loadReports();
 let talkItems = loadTalk();
 let currentId = null;
 let saveTimer = null;
+let lastTap = null; // "key:value" of the rating just tapped, for the jelly animation
+let animateList = true; // entries slide in on the next render (load, search, unlock)
 
 // ---------- Storage ----------
 
@@ -208,9 +210,15 @@ function renderList() {
   const q = $('search').value.trim().toLowerCase();
   const shown = sorted(entries).filter((e) => !q || matches(e, q));
 
-  list.replaceChildren(...shown.map((e) => {
+  const enter = animateList;
+  animateList = false;
+  list.replaceChildren(...shown.map((e, i) => {
     const li = document.createElement('li');
     li.className = e.id === currentId ? 'active' : '';
+    if (enter) {
+      li.classList.add('enter');
+      li.style.setProperty('--i', Math.min(i, 12));
+    }
     if (e.mood) li.style.setProperty('--c', MOODS[e.mood - 1].color);
     li.innerHTML = `
       <div class="entry-meta"><span></span><span></span></div>
@@ -245,6 +253,7 @@ function renderCheckin() {
     b.setAttribute('aria-label', `Mood: ${m.label}`);
     b.dataset.label = m.label;
     b.style.setProperty('--c', m.color);
+    b.dataset.tap = `mood:${i + 1}`;
     b.addEventListener('click', () => rate('mood', i + 1));
     return b;
   }));
@@ -273,6 +282,7 @@ function renderCheckin() {
       b.setAttribute('aria-label', `${s.label}: ${w}`);
       b.title = w;
       b.style.setProperty('--c', s.colors[i]);
+      b.dataset.tap = `${s.key}:${i + 1}`;
       b.addEventListener('click', () => rate(s.key, i + 1));
       return b;
     }));
@@ -303,6 +313,18 @@ function renderCheckin() {
   $('themes').replaceChildren(...chips, add);
 
   $('doneBadge').hidden = !isComplete(e);
+
+  // Jelly squish + ripple on the button that was just tapped.
+  const tapped = lastTap && document.querySelector(`.checkin [data-tap="${lastTap}"]`);
+  lastTap = null;
+  if (tapped) {
+    tapped.classList.add('jelly');
+    tapped.addEventListener('animationend', () => tapped.classList.remove('jelly'), { once: true });
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    tapped.append(ripple);
+    setTimeout(() => ripple.remove(), 700);
+  }
 }
 
 // ---------- Actions ----------
@@ -319,6 +341,7 @@ function rate(key, value) {
   const e = current();
   const wasComplete = isComplete(e);
   e[key] = e[key] === value ? null : value;
+  lastTap = `${key}:${value}`;
   renderCheckin();
   touch();
   if (!wasComplete && isComplete(e)) document.dispatchEvent(new Event('diary:checkin-done'));
@@ -502,7 +525,7 @@ $('importInput').addEventListener('change', (ev) => {
   if (ev.target.files[0]) importBackup(ev.target.files[0]);
   ev.target.value = '';
 });
-$('search').addEventListener('input', renderList);
+$('search').addEventListener('input', () => { animateList = true; renderList(); });
 Object.values(fields).forEach((f) => f.addEventListener('input', touch));
 form.addEventListener('submit', (ev) => ev.preventDefault());
 

@@ -1,11 +1,11 @@
 # Handoff
 
-**Goal:** Weekly-therapy-update diary. All 7 planned phases are done; next is polish or new ideas.
+**Goal:** Weekly-therapy-update diary. Phases 1–8 done (8 = visual polish); next is real-use feedback or new ideas.
 
 ## Status
 - Live: https://chromedigi.github.io/Diary/ (repo ChromeDigi/Diary, public; every push to `main` deploys)
 - Done: 1 MVP, 2 3D redesign, 3 daily check-in, 4 weekly report, 5 bring-to-therapy
-  list + session notes + goal, 6 guilt-free rewards, 7 optional passcode lock.
+  list + session notes + goal, 6 guilt-free rewards, 7 optional passcode lock, 8 visual polish (`fx.js`).
   See [plan.md](plan.md), `phases/`, [decisions.md](decisions.md).
 
 ## Next steps (owner to choose)

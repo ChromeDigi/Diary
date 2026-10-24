@@ -16,6 +16,7 @@ Build prompts per phase: [prompts.md](prompts.md).
 | 5 | [Bring-to-therapy list](phases/5-therapy-prep.md), session notes, weekly goal, carry-over | Done |
 | 6 | [Guilt-free motivation](phases/6-motivation.md): totals not streaks, confetti, badges, palettes, daily prompt | Done |
 | 7 | [Optional passcode lock](phases/7-passcode.md) with real encryption | Done |
+| 8 | [Visual polish](phases/8-visual-polish.md): holographic logo, glowing borders, jelly orbs, starfield | Done |
 
 Each phase gets `docs/phases/<n>-<name>.md` before it is built.
 
