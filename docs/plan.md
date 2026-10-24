@@ -17,6 +17,9 @@ Build prompts per phase: [prompts.md](prompts.md).
 | 6 | [Guilt-free motivation](phases/6-motivation.md): totals not streaks, confetti, badges, palettes, daily prompt | Done |
 | 7 | [Optional passcode lock](phases/7-passcode.md) with real encryption | Done |
 | 8 | [Visual polish](phases/8-visual-polish.md): holographic logo, glowing borders, jelly orbs, starfield | Done |
+| 9 | [Brief data](phases/9-brief-data.md): sleep per night, skills used, key events | Done |
+| 10 | Therapy Homework Brief view (session-to-session, see [brief-format.md](brief-format.md)) + clinical print style | Next |
+| 11 | Word export + brief polish | Planned |
 
 Each phase gets `docs/phases/<n>-<name>.md` before it is built.
 

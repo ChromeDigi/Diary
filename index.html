@@ -60,6 +60,37 @@
           <div class="scales" id="scales"></div>
           <div class="themes" id="themes"></div>
           <input id="oneLiner" class="one-liner" placeholder="Biggest thing today" aria-label="Biggest thing today" maxlength="140">
+
+          <div class="sleep-row">
+            <div class="sleep-head">
+              <span class="scale-label">😴 Last night</span>
+              <span id="sleepNight" class="muted"></span>
+              <span id="sleepTotal" class="sleep-total"></span>
+            </div>
+            <div class="sleep-grid">
+              <label>Bedtime <input type="time" id="sleepBed"></label>
+              <label>Wake <input type="time" id="sleepWake"></label>
+              <label>Time asleep
+                <span class="hm">
+                  <input type="number" id="sleepH" min="0" max="24" placeholder="h" aria-label="Hours asleep">
+                  <input type="number" id="sleepM" min="0" max="59" placeholder="min" aria-label="Minutes asleep">
+                </span>
+              </label>
+              <label>Awake <input type="number" id="sleepAwake" min="0" max="600" placeholder="min"></label>
+              <label>Sleep score <input type="number" id="sleepScore" min="0" max="100" placeholder="0–100"></label>
+              <label class="est"><input type="checkbox" id="sleepEst"> Estimated</label>
+            </div>
+          </div>
+
+          <div class="skills-row">
+            <span class="scale-label">🧠 Skills I actually used</span>
+            <div class="themes" id="skills"></div>
+          </div>
+
+          <div class="key-row">
+            <button type="button" id="keyBtn" class="chip key-toggle" aria-pressed="false">⭐ Key event for therapy</button>
+            <input id="meaning" class="one-liner" placeholder="Why it matters for therapy" aria-label="Why it matters for therapy" maxlength="240" hidden>
+          </div>
         </section>
         <div class="daily-prompt" id="dailyPrompt">
           <span class="prompt-label">💡 Today's prompt</span>

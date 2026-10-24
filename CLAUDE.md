@@ -22,22 +22,27 @@ with no framework, dependencies or build step.
 
 ## How it works
 
-- Entries live only in the browser's `localStorage` under the key `diary.entries.v2`.
+- Entries live only in the browser's `localStorage` under the key `diary.entries.v3`.
   Each entry is `{ id, date (YYYY-MM-DD), title, body, mood, energy, anxiety, sleep,
-  themes, oneLiner, updatedAt }`; ratings are 1–5 or `null`. Old `diary.entries.v1`
-  data is migrated on first load and left untouched. UI prefs: `diary.prefs.v1`.
+  themes, oneLiner, skills, skillsReview, keyEvent, meaning, updatedAt }`; ratings are
+  1–5 or `null`. Older `diary.entries.v2`/`v1` data is migrated on first load and left
+  untouched. UI prefs: `diary.prefs.v1`.
+- Sleep per night: `diary.sleep.v1` = `{ "<night of>": { bedtime, wake, asleepMin,
+  awakeMin, score, estimated, updatedAt } }`. Night of = the entry date − 1. Missing
+  values stay `null`; never fill them in (see `docs/brief-format.md`).
 - If the entry shape changes, bump the key version and migrate old data, so existing
   diaries are never lost.
 - Typing autosaves with a 400 ms debounce (`touch()` → `persist()`).
 - Weekly report notes: `diary.reports.v1` = `{ "<week start>": { wins, struggles, talk,
   sessionNotes, goal, updatedAt } }`; a `null` wins/struggles stays auto-filled.
 - Bring-to-therapy items: `diary.talk.v1` = `[{ id, text, addedOn, discussedOn }]`.
-- Lock on: entries, reports and talk items live only in `diary.vault.v1` (encrypted);
+- Lock on: entries, reports, talk items and sleep live only in `diary.vault.v1` (encrypted);
   the plain keys are removed. All saves go through `writeData()` in `app.js`, which
   refuses to write while locked. Never bypass it with a direct `localStorage.setItem`.
-- Backups are JSON `{ format: "my-diary", version: 3, entries, reports, talkItems }`
-  (v2 and old plain arrays still import). Import only adds entries and items whose
-  `id` is new, and report weeks not already present.
+- Backups are JSON `{ format: "my-diary", version: 4, entries, reports, talkItems, sleep }`
+  (v2/v3 and old plain arrays still import). Import only adds entries and items whose
+  `id` is new, and report weeks / sleep nights not already present.
+- Never commit real therapy content, names or the owner's brief PDFs: the repo is public.
 
 ## Running
 

@@ -1,7 +1,9 @@
 // My Diary: entries are stored only in this browser's localStorage.
 
-const STORAGE_KEY = 'diary.entries.v2';
-const OLD_KEY = 'diary.entries.v1'; // read once for migration; only removed when the lock is turned on
+const STORAGE_KEY = 'diary.entries.v3';
+// Older entry keys, newest first: read once for migration; only removed when the lock is turned on.
+const OLD_KEYS = ['diary.entries.v2', 'diary.entries.v1'];
+const SLEEP_KEY = 'diary.sleep.v1'; // sleep per night, keyed by "night of" date
 const PREFS_KEY = 'diary.prefs.v1';
 const REPORTS_KEY = 'diary.reports.v1'; // weekly report notes, keyed by week start date
 const TALK_KEY = 'diary.talk.v1'; // bring-to-therapy items
@@ -27,17 +29,21 @@ const SCALES = [
   { key: 'sleep', label: 'Sleep', words: ['Awful', 'Poor', 'Okay', 'Good', 'Great'], colors: GOOD_HIGH },
 ];
 const DEFAULT_THEMES = ['work', 'family', 'friends', 'sensory overload', 'health', 'win'];
+const DEFAULT_SKILLS = ['DEAR MAN', 'GIVE', 'FAST', 'STOP', 'Distress tolerance', 'Emotion labeling', 'Boundaries'];
+const SLEEP_INPUTS = ['sleepBed', 'sleepWake', 'sleepH', 'sleepM', 'sleepAwake', 'sleepScore', 'sleepEst'];
 
 const $ = (id) => document.getElementById(id);
 const app = $('app');
 const list = $('entryList');
 const form = $('entryForm');
-const fields = { date: $('date'), title: $('title'), body: $('body'), oneLiner: $('oneLiner') };
+const fields = { date: $('date'), title: $('title'), body: $('body'), oneLiner: $('oneLiner'), meaning: $('meaning') };
 
 let vaultKey = null; // set by lock.js after unlocking; null when the lock is off
 let entries = load();
 let reports = loadReports();
 let talkItems = loadTalk();
+let sleepLog = loadSleep();
+let sleepTimer = null;
 let currentId = null;
 let saveTimer = null;
 let lastTap = null; // "key:value" of the rating just tapped, for the jelly animation
@@ -67,7 +73,7 @@ function isEntry(e) {
   return e && e.id && typeof e.body === 'string';
 }
 
-// Turns a v1 or v2 entry into a valid v2 entry.
+// Turns a v1, v2 or v3 entry into a valid v3 entry.
 function normalize(e) {
   return {
     id: String(e.id),
@@ -80,8 +86,72 @@ function normalize(e) {
     sleep: score(e.sleep),
     themes: Array.isArray(e.themes) ? [...new Set(e.themes.map(cleanTheme).filter(Boolean))] : [],
     oneLiner: typeof e.oneLiner === 'string' ? e.oneLiner : '',
+    skills: Array.isArray(e.skills) ? [...new Set(e.skills.map(cleanSkill).filter(Boolean))] : [],
+    skillsReview: e.skillsReview === true,
+    keyEvent: e.keyEvent === true,
+    meaning: typeof e.meaning === 'string' ? e.meaning : '',
     updatedAt: Number(e.updatedAt) || Date.now(),
   };
+}
+
+function cleanSkill(s) {
+  return String(s).trim().replace(/\s+/g, ' ').slice(0, 30);
+}
+
+// ---------- Sleep (per night) ----------
+
+function minutesOrNull(v, max) {
+  const n = Number(v);
+  return v !== '' && v != null && Number.isFinite(n) && n >= 0 && n <= max ? Math.round(n) : null;
+}
+
+function cleanSleep(n) {
+  const time = (v) => (typeof v === 'string' && /^\d{2}:\d{2}$/.test(v) ? v : '');
+  return {
+    bedtime: time(n.bedtime),
+    wake: time(n.wake),
+    asleepMin: minutesOrNull(n.asleepMin, 24 * 60),
+    awakeMin: minutesOrNull(n.awakeMin, 24 * 60),
+    score: minutesOrNull(n.score, 100),
+    estimated: n.estimated === true,
+    updatedAt: Number(n.updatedAt) || Date.now(),
+  };
+}
+
+function cleanSleepLog(obj) {
+  const out = {};
+  Object.entries(obj && typeof obj === 'object' && !Array.isArray(obj) ? obj : {}).forEach(([night, n]) => {
+    if (ISO_DATE.test(night) && n && typeof n === 'object') out[night] = cleanSleep(n);
+  });
+  return out;
+}
+
+function loadSleep() {
+  if (hasVault()) return {};
+  try {
+    return cleanSleepLog(JSON.parse(localStorage.getItem(SLEEP_KEY)));
+  } catch {
+    return {};
+  }
+}
+
+function persistSleep() {
+  writeData(SLEEP_KEY, sleepLog);
+}
+
+// Minutes asleep: as entered, else wake − bedtime − awake. Returns { min, calculated }.
+function sleepTotal(n) {
+  if (!n) return { min: null, calculated: false };
+  if (n.asleepMin != null) return { min: n.asleepMin, calculated: false };
+  if (!n.bedtime || !n.wake) return { min: null, calculated: false };
+  const toMin = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3));
+  let span = toMin(n.wake) - toMin(n.bedtime);
+  if (span <= 0) span += 24 * 60;
+  return { min: Math.max(0, span - (n.awakeMin || 0)), calculated: true };
+}
+
+function formatMinutes(min) {
+  return min == null ? '–' : `${Math.floor(min / 60)}h ${String(min % 60).padStart(2, '0')}m`;
 }
 
 function readList(key) {
@@ -98,7 +168,7 @@ function load() {
   if (hasVault()) return [];
   const current = readList(STORAGE_KEY);
   if (current) return current.filter(isEntry).map(normalize);
-  const old = readList(OLD_KEY);
+  const old = OLD_KEYS.map(readList).find(Boolean);
   if (!old) return [];
   const migrated = old.filter(isEntry).map(normalize);
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated)); } catch { /* retried on next save */ }
@@ -312,6 +382,10 @@ function renderCheckin() {
   });
   $('themes').replaceChildren(...chips, add);
 
+  renderSkills(e);
+  $('keyBtn').setAttribute('aria-pressed', String(e.keyEvent));
+  fields.meaning.hidden = !e.keyEvent;
+
   $('doneBadge').hidden = !isComplete(e);
 
   // Jelly squish + ripple on the button that was just tapped.
@@ -354,6 +428,103 @@ function hideViews() {
   $('privacy').hidden = true;
 }
 
+// Skills: only what was actually used, plus an honest "need review" chip.
+function renderSkills(e) {
+  const custom = entries.flatMap((x) => x.skills).filter((s) => !DEFAULT_SKILLS.includes(s));
+  const chips = [...DEFAULT_SKILLS, ...[...new Set(custom)].sort()].map((s) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.textContent = s;
+    b.setAttribute('aria-pressed', String(e.skills.includes(s)));
+    b.addEventListener('click', () => toggleSkill(s));
+    return b;
+  });
+  const review = document.createElement('button');
+  review.type = 'button';
+  review.className = 'chip review-chip';
+  review.textContent = "Didn't use skills, need review";
+  review.setAttribute('aria-pressed', String(e.skillsReview));
+  review.addEventListener('click', () => {
+    e.skillsReview = !e.skillsReview;
+    renderSkills(e);
+    touch();
+  });
+  const add = document.createElement('input');
+  add.className = 'chip add-theme add-skill';
+  add.placeholder = '+ add skill';
+  add.setAttribute('aria-label', 'Add a skill');
+  add.maxLength = 30;
+  add.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'Enter') return;
+    ev.preventDefault();
+    const s = cleanSkill(add.value);
+    if (s && !e.skills.includes(s)) toggleSkill(s, true);
+  });
+  $('skills').replaceChildren(...chips, review, add);
+}
+
+function toggleSkill(s, refocus) {
+  const e = current();
+  e.skills = e.skills.includes(s) ? e.skills.filter((x) => x !== s) : [...e.skills, s];
+  renderSkills(e);
+  if (refocus) document.querySelector('.add-skill').focus();
+  touch();
+}
+
+// ---------- Sleep entry (the night before the entry's date) ----------
+
+function nightBefore(iso) {
+  const d = new Date(iso + 'T00:00');
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function renderSleep() {
+  const e = current();
+  if (!e) return;
+  const night = nightBefore(e.date);
+  const n = sleepLog[night];
+  const short = (iso) => new Date(iso + 'T00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  $('sleepNight').textContent = `Night of ${short(night)} → ${short(e.date)}`;
+  $('sleepBed').value = n?.bedtime || '';
+  $('sleepWake').value = n?.wake || '';
+  $('sleepH').value = n?.asleepMin != null ? Math.floor(n.asleepMin / 60) : '';
+  $('sleepM').value = n?.asleepMin != null ? n.asleepMin % 60 : '';
+  $('sleepAwake').value = n?.awakeMin ?? '';
+  $('sleepScore').value = n?.score ?? '';
+  $('sleepEst').checked = !!n?.estimated;
+  renderSleepTotal(n);
+}
+
+function renderSleepTotal(n) {
+  const t = sleepTotal(n);
+  $('sleepTotal').textContent = t.min == null ? ''
+    : `${formatMinutes(t.min)}${t.calculated ? ' (calculated)' : ''}${n.estimated ? ' · estimated' : ''}`;
+}
+
+function onSleepInput() {
+  const e = current();
+  if (!e) return;
+  const night = nightBefore(e.date);
+  const h = $('sleepH').value, m = $('sleepM').value;
+  const n = cleanSleep({
+    bedtime: $('sleepBed').value,
+    wake: $('sleepWake').value,
+    asleepMin: h === '' && m === '' ? null : (Number(h) || 0) * 60 + (Number(m) || 0),
+    awakeMin: $('sleepAwake').value,
+    score: $('sleepScore').value,
+    estimated: $('sleepEst').checked,
+  });
+  const empty = !n.bedtime && !n.wake && n.asleepMin == null && n.awakeMin == null && n.score == null;
+  if (empty) delete sleepLog[night];
+  else sleepLog[night] = n;
+  renderSleepTotal(empty ? null : n);
+  setStatus('Saving…');
+  clearTimeout(sleepTimer);
+  sleepTimer = setTimeout(() => { persistSleep(); setStatus(vaultKey ? 'Saved 🔒' : 'Saved'); }, 400);
+}
+
 function toggleTheme(t, refocus) {
   const e = current();
   e.themes = e.themes.includes(t) ? e.themes.filter((x) => x !== t) : [...e.themes, t];
@@ -369,6 +540,8 @@ function openEntry(id) {
   fields.title.value = e.title;
   fields.body.value = e.body;
   fields.oneLiner.value = e.oneLiner;
+  fields.meaning.value = e.meaning;
+  renderSleep();
   hideViews();
   renderCheckin();
   form.hidden = false;
@@ -414,6 +587,7 @@ function touch() {
   e.title = fields.title.value;
   e.body = fields.body.value;
   e.oneLiner = fields.oneLiner.value;
+  e.meaning = fields.meaning.value;
   e.updatedAt = Date.now();
   setStatus('Saving…');
   clearTimeout(saveTimer);
@@ -429,7 +603,7 @@ function deleteEntry() {
 }
 
 function exportBackup() {
-  const backup = { format: 'my-diary', version: 3, entries, reports, talkItems };
+  const backup = { format: 'my-diary', version: 4, entries, reports, talkItems, sleep: sleepLog };
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -439,7 +613,7 @@ function exportBackup() {
 }
 
 // Accepts old plain-array backups and v2/v3 backups. Only adds entries and
-// bring-to-therapy items whose id is new, and report notes for weeks not yet present.
+// bring-to-therapy items whose id is new, and report weeks / sleep nights not yet present.
 async function importBackup(file) {
   try {
     const data = JSON.parse(await file.text());
@@ -466,11 +640,16 @@ async function importBackup(file) {
     talkItems.push(...newTalk);
     if (newTalk.length) persistTalk();
 
+    const newNights = Object.entries(cleanSleepLog(data?.sleep)).filter(([night]) => !sleepLog[night]);
+    newNights.forEach(([night, n]) => { sleepLog[night] = n; });
+    if (newNights.length) persistSleep();
+
     renderList();
     document.dispatchEvent(new Event('diary:imported'));
     const extras = [
       weeks ? `${weeks} week${weeks === 1 ? '' : 's'} of report notes` : '',
       newTalk.length ? `${newTalk.length} bring-to-therapy item${newTalk.length === 1 ? '' : 's'}` : '',
+      newNights.length ? `${newNights.length} night${newNights.length === 1 ? '' : 's'} of sleep` : '',
     ].filter(Boolean);
     alert(`Imported ${added.length} new entr${added.length === 1 ? 'y' : 'ies'}`
       + (extras.length ? `, ${extras.join(' and ')}.` : '.'));
@@ -527,6 +706,16 @@ $('importInput').addEventListener('change', (ev) => {
 });
 $('search').addEventListener('input', () => { animateList = true; renderList(); });
 Object.values(fields).forEach((f) => f.addEventListener('input', touch));
+fields.date.addEventListener('input', renderSleep); // a new date means a different night
+SLEEP_INPUTS.forEach((id) => $(id).addEventListener(id === 'sleepEst' ? 'change' : 'input', onSleepInput));
+$('keyBtn').addEventListener('click', () => {
+  const e = current();
+  e.keyEvent = !e.keyEvent;
+  $('keyBtn').setAttribute('aria-pressed', String(e.keyEvent));
+  fields.meaning.hidden = !e.keyEvent;
+  if (e.keyEvent) fields.meaning.focus();
+  touch();
+});
 form.addEventListener('submit', (ev) => ev.preventDefault());
 
 applyPrefs();

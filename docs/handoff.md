@@ -1,6 +1,6 @@
 # Handoff
 
-**Goal:** Weekly-therapy-update diary. Phases 1–8 done (8 = visual polish); next is real-use feedback or new ideas.
+**Goal:** Turn the app's report into the Therapy Homework Brief ([brief-format.md](brief-format.md)). Phase 9 (data) done; next: Phase 10, the Brief view.
 
 ## Status
 - Live: https://chromedigi.github.io/Diary/ (repo ChromeDigi/Diary, public; every push to `main` deploys)

@@ -741,6 +741,29 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .file-btn:foc
 .forgot p { margin: 8px 0; }
 .forgot input { width: 100%; margin-bottom: 8px; font-size: 0.9rem; }
 
+/* Brief data: sleep, skills, key event (Phase 9) */
+.sleep-row, .skills-row, .key-row { display: flex; flex-direction: column; gap: 8px; }
+.sleep-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.sleep-head .muted { font-size: 0.85rem; }
+.sleep-total { margin-left: auto; font-weight: 700; color: var(--accent); }
+.sleep-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+.sleep-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+.sleep-grid input[type="time"], .sleep-grid input[type="number"] {
+  width: 100%; min-width: 0; padding: 8px 10px; border-radius: 12px;
+  border: 1px solid var(--glass-border); background: var(--glass); font-size: 0.95rem; color: var(--text);
+}
+.sleep-grid .hm { display: flex; gap: 4px; }
+.sleep-grid label.est { flex-direction: row; align-items: center; gap: 8px; align-self: end; padding-bottom: 8px; color: var(--text); }
+.sleep-grid label.est input { width: 18px; height: 18px; accent-color: var(--accent); }
+.review-chip[aria-pressed="true"] {
+  background: color-mix(in srgb, #ef9f27 28%, transparent); border-color: #ef9f27;
+  box-shadow: 0 6px 18px -6px color-mix(in srgb, #ef9f27 calc(var(--glow) * 160%), transparent);
+}
+.key-toggle { align-self: flex-start; }
+.key-toggle[aria-pressed="true"] {
+  background: color-mix(in srgb, #f2d94e 30%, transparent); border-color: #f2d94e;
+}
+
 /* Calm mode and reduced motion: no movement */
 :root.calm *, :root.calm *::before, :root.calm *::after {
   animation: none !important;
