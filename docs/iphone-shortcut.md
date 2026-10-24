@@ -2,12 +2,17 @@
 
 One tap each morning sends last night's sleep, recent activity and your work calendar
 to the diary. Built in Apple's **Shortcuts** app; nothing to install.
-Being checked on a real iPhone; steps marked ✔ match what the iPhone shows.
+Being checked on a real iPhone; steps marked ✔ match what the iPhone shows. Part A
+(sleep) works end to end (2026-10-24).
 
 ## Permissions
 The first run asks to read **Health** (Sleep, Steps, Exercise, Active Energy, Workouts)
 and **Calendars**. Tap **Allow** / **Turn On All**. Change later in
 Settings → Privacy & Security → **Health → Shortcuts** and **Calendars → Shortcuts**.
+
+✔ **Needed once:** a week of sleep is ~150–200 Health items, and iOS blocks sending that
+many ("This action is trying to share 177 Health items, which is not allowed"). Fix:
+Settings → Apps → **Shortcuts → Advanced → Allow Sharing Large Amounts of Data** (on).
 
 ## Build it (Shortcuts → + → name it "Diary check-in")
 Date format used everywhere below: **Format Date → Custom →** `yyyy-MM-dd'T'HH:mm`
@@ -21,10 +26,13 @@ hold it, then drag it up between *Repeat with Each* and *End Repeat*.
    Analysis") and **Start Date is in the last 7 days**. 7 days back-fills mornings you
    skipped. **Sort by: None** is fine; the diary sorts.
 2. *Repeat with Each* result:
-   - *Format Date* (Repeat Item → Start Date, custom format) → rename **S**
-   - *Format Date* (Repeat Item → End Date, custom format) → rename **E**
-   - *Text*: `SLEEP|` **S** `|` **E** `|` Repeat Item → **Value**
-   - *Add to Variable* **Lines**
+   - ✔ *Format Date*: tap Date → Repeat Item → **Start Date**; Date Format **Custom** →
+     Format String `yyyy-MM-dd'T'HH:mm`
+   - ✔ Second *Format Date*: press and hold the first → **Duplicate**, then switch it to **End Date**
+   - ✔ *Text*: `SLEEP|` Formatted Date `|` Formatted Date `|` Repeat Item. Insert each date with
+     **Select Variable** and tap the matching Format action. The Repeat Item bubble already
+     gives **Value** (its default), so its label stays "Repeat Item".
+   - ✔ *Add to Variable*: **Text** to `Lines`
 3. End Repeat.
 
 **B. Activity** (repeat this block for each type)
@@ -50,11 +58,12 @@ hold it, then drag it up between *Repeat with Each* and *End Repeat*.
 
 **E. Send it to the diary**
 Put these after the last *End Repeat* (not inside it).
-1. *Combine Text*: **Lines** with **New Lines**.
-2. *URL Encode* the Combined Text.
-3. *Text*: `https://chromedigi.github.io/Diary/#health=` *URL Encoded Text* (no space between).
-4. *Open URLs*.
-5. Tap ▶ to test. It works when the diary shows "Imported N nights of sleep".
+1. ✔ *Combine Text*: it fills in **Repeat Results** by itself. Tap it → **Clear Variable**,
+   tap the empty field → **Lines** from the bar above the keyboard. Then: with **New Lines**.
+2. ✔ *URL Encode* the Combined Text.
+3. ✔ *Text*: `https://chromedigi.github.io/Diary/#health=` *URL Encoded Text* (no space between).
+4. ✔ *Open URLs* (shows "Open Text").
+5. ✔ Tap ▶ to test. It works when the diary shows "Imported N nights of sleep".
 
 Then: shortcut **⋯ → Add to Home Screen**. Tap it each morning.
 

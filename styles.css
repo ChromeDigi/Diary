@@ -414,6 +414,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .file-btn:foc
 .one-liner::placeholder { color: var(--muted); }
 
 .title {
+  width: 100%;
+  min-width: 0;
   border: none;
   background: transparent;
   font-size: 2.1rem;
@@ -747,11 +749,14 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .file-btn:foc
 .sleep-head .muted { font-size: 0.85rem; }
 .sleep-total { margin-left: auto; font-weight: 700; color: var(--accent); }
 .sleep-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
-.sleep-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+.sleep-grid label { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 0.78rem; color: var(--muted); font-weight: 600; }
 .sleep-grid input[type="time"], .sleep-grid input[type="number"] {
   width: 100%; min-width: 0; padding: 8px 10px; border-radius: 12px;
   border: 1px solid var(--glass-border); background: var(--glass); font-size: 0.95rem; color: var(--text);
 }
+/* iOS Safari gives time inputs a fixed native width that overflows the grid */
+.sleep-grid input[type="time"] { -webkit-appearance: none; appearance: none; display: block; min-height: 2.4em; }
+.sleep-grid input[type="time"]::-webkit-date-and-time-value { text-align: left; }
 .sleep-grid .hm { display: flex; gap: 4px; }
 .sleep-grid label.est { flex-direction: row; align-items: center; gap: 8px; align-self: end; padding-bottom: 8px; color: var(--text); }
 .sleep-grid label.est input { width: 18px; height: 18px; accent-color: var(--accent); }
@@ -852,7 +857,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .file-btn:foc
 
 /* Phone layout: show one pane at a time */
 @media (max-width: 720px) {
-  .app { grid-template-columns: 1fr; padding: 10px; gap: 10px; height: auto; min-height: 100%; }
+  .app { grid-template-columns: minmax(0, 1fr); padding: 10px; gap: 10px; height: auto; min-height: 100%; }
   .sidebar { min-height: calc(100vh - 20px); }
   #body { min-height: 45vh; }
   .app.editing .sidebar { display: none; }

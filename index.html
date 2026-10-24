@@ -225,6 +225,7 @@
         <div class="rcard guide">
           <h3>1 · Permissions</h3>
           <p>The first time the shortcut runs, iOS asks to read Health and Calendars. Tap <strong>Allow</strong> / <strong>Turn On All</strong>. To check later: Settings → Privacy &amp; Security → <strong>Health → Shortcuts</strong> and <strong>Calendars → Shortcuts</strong>.</p>
+          <p>Also needed once, or iOS blocks a week of sleep ("trying to share 177 Health items"): Settings → Apps → <strong>Shortcuts → Advanced → Allow Sharing Large Amounts of Data</strong>.</p>
         </div>
 
         <div class="rcard guide">
@@ -235,7 +236,7 @@
             <li><strong>Activity:</strong> for Steps → <code>STEPS</code>, Exercise Time → <code>EXERCISE</code>, Active Energy → <code>ENERGY</code>: <em>Find Health Samples</em> (last 7 days, <strong>Group By: Day</strong>) → <em>Repeat</em>: <code>STEPS|yyyy-MM-dd|Value</code> → add to "Lines".</li>
             <li><strong>Workouts</strong> (if offered): <code>WORKOUT|start|end|Type</code> → add to "Lines".</li>
             <li><strong>Work calendar:</strong> <em>Date</em> "today at 12:00 AM", <em>Adjust Date</em> +8 days → <em>Find Calendar Events</em> (your work calendar, start after today, before +8 days) → <em>Repeat</em>: <code>EVENT|start|end|Title</code> (or <code>busy</code> to keep titles private) → add to "Lines".</li>
-            <li><strong>Send</strong> (after the last End Repeat): <em>Combine Text</em> (Lines, New Lines) → <em>URL Encode</em> → <em>Text</em> <code id="setupUrl"></code> + encoded text → <em>Open URLs</em>. Tap ▶: it works when this diary says "Imported N nights of sleep".</li>
+            <li><strong>Send</strong> (after the last End Repeat): <em>Combine Text</em> (it fills in Repeat Results: tap it → Clear Variable → pick Lines; with New Lines) → <em>URL Encode</em> → <em>Text</em> <code id="setupUrl"></code> + encoded text → <em>Open URLs</em>. Tap ▶: it works when this diary says "Imported N nights of sleep".</li>
             <li><strong>Home screen:</strong> shortcut ⋯ → Add to Home Screen. Tap it each morning.</li>
           </ol>
           <p class="muted">Full guide: docs/iphone-shortcut.md in the project. Being checked on a real iPhone; tell me where a step looks different.</p>
