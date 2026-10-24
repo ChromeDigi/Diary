@@ -31,6 +31,9 @@ Nothing needs installing.
 ### Communication
 - Report extremely concisely. Sacrifice grammar for concision.
 - Ambiguous request → ask ONE clarifying question before doing anything.
+- Multiple options → always present them as clickable multiple choice (AskUserQuestion
+  tool), never a plain list. Put your recommendation first, marked "(Recommended)",
+  and say why you recommend it.
 - Evidence before confidence: claim something works/is done only after verifying it
   (ran it, tested it, read the output). Say what was not verified.
 
