@@ -8,3 +8,5 @@
 - **New purpose: weekly therapy update** (owner, 2026-10-23). Roadmap rewritten around daily check-in → weekly report. Design-first order so every later screen is built once in the new style.
 - **Tags folded into Phase 3 check-in as "theme chips"** (2026-10-23). `phases/2-tags.md` is superseded; reuse its migration + test ideas.
 - **Charts are hand-made inline SVG** (2026-10-23), keeping the app dependency-free.
+- **Aurora glass style + CSS 3D, no libraries** (owner, 2026-10-23, from a live prototype). Remotion ruled out for the UI (video tool, needs Node); could return later for recap videos. Calm mode + reduced motion turn all motion off.
+- **UI prefs in `diary.prefs.v1`** (2026-10-23), separate from entries, so prefs never touch the entry schema.

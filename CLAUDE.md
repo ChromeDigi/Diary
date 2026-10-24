@@ -53,6 +53,8 @@ Nothing needs installing.
 - Only when the chat feels heavy and context is at ~60%: ask (clickable choice) about a
   handoff, per the user-wide "Context handoff" rule. Never hand off automatically.
 - Keep the docs current after each phase anyway, so any later session can pick up.
+- Build prompts live in `docs/prompts.md`. When a phase is done, offer the next prompt
+  as a clickable choice (AskUserQuestion), e.g. "Start prompt N (Recommended)".
 
 ### Efficiency
 - Read only the files needed; no broad re-reading of the codebase.

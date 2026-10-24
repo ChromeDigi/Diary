@@ -7,12 +7,17 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
   <div class="app" id="app">
     <aside class="sidebar">
       <header class="sidebar-head">
-        <h1>My Diary</h1>
-        <button id="newBtn" class="primary">+ New entry</button>
+        <h1>My <span>Diary</span></h1>
+        <div class="toggles">
+          <button id="themeBtn" class="icon" aria-label="Switch theme"></button>
+          <button id="calmBtn" class="icon" aria-label="Calm mode" aria-pressed="false">🌙</button>
+        </div>
       </header>
+      <button id="newBtn" class="primary">+ New entry</button>
       <input id="search" type="search" placeholder="Search entries…" aria-label="Search entries">
       <ul id="entryList" class="entry-list"></ul>
       <p id="emptyList" class="muted empty" hidden>No entries yet. Write your first one!</p>

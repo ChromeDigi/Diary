@@ -10,8 +10,8 @@ Build prompts per phase: [prompts.md](prompts.md).
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | [MVP diary app](phases/1-mvp.md) | Done |
-| 2 | Visual redesign: colorful, modern, calm mode, mood colors | Next |
-| 3 | Quick daily check-in: 1–5 sliders, theme chips (replaces [tags](phases/2-tags.md)), one-liner | Planned |
+| 2 | [3D visual redesign](phases/2-redesign.md) | Done |
+| 3 | Quick daily check-in: 1–5 sliders, theme chips (replaces [tags](phases/2-tags.md)), one-liner | Next |
 | 4 | Weekly therapist report: SVG charts, mood strip, wins/struggles, print/PDF | Planned |
 | 5 | Bring-to-therapy list, session notes, weekly goal, carry-over | Planned |
 | 6 | Guilt-free motivation: totals not streaks, confetti, badges, daily prompt | Planned |

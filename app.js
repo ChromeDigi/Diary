@@ -1,7 +1,16 @@
 // My Diary: entries are stored only in this browser's localStorage.
 
 const STORAGE_KEY = 'diary.entries.v1';
+const PREFS_KEY = 'diary.prefs.v1';
+// Each mood emoji gets a color for its orb and list glow.
 const MOODS = ['😄', '🙂', '😐', '😔', '😢', '😡'];
+const MOOD_COLORS = {
+  '😄': '#7f9cff', '🙂': '#5dcaa5', '😐': '#f2d94e',
+  '😔': '#ef9f27', '😢': '#5b8def', '😡': '#e24b6a',
+};
+const MOOD_LABELS = {
+  '😄': 'Great', '🙂': 'Good', '😐': 'Okay', '😔': 'Low', '😢': 'Sad', '😡': 'Angry',
+};
 
 const $ = (id) => document.getElementById(id);
 const app = $('app');
@@ -66,6 +75,7 @@ function renderList() {
   list.replaceChildren(...shown.map((e) => {
     const li = document.createElement('li');
     li.className = e.id === currentId ? 'active' : '';
+    if (MOOD_COLORS[e.mood]) li.style.setProperty('--c', MOOD_COLORS[e.mood]);
     li.innerHTML = `
       <div class="entry-meta"><span></span><span></span></div>
       <div class="entry-title"></div>
@@ -88,6 +98,9 @@ function renderMoods(selected) {
     b.textContent = m;
     b.setAttribute('role', 'radio');
     b.setAttribute('aria-checked', String(m === selected));
+    b.setAttribute('aria-label', MOOD_LABELS[m]);
+    b.title = MOOD_LABELS[m];
+    b.style.setProperty('--c', MOOD_COLORS[m]);
     b.addEventListener('click', () => {
       const entry = current();
       entry.mood = entry.mood === m ? '' : m;
@@ -112,6 +125,9 @@ function openEntry(id) {
   fields.body.value = e.body;
   renderMoods(e.mood);
   form.hidden = false;
+  form.classList.remove('swing');
+  void form.offsetWidth; // restart the swing-in animation
+  form.classList.add('swing');
   $('placeholder').hidden = true;
   app.classList.add('editing');
   setStatus(new Date(e.updatedAt).toLocaleString());
@@ -186,7 +202,41 @@ async function importBackup(file) {
   }
 }
 
+// ---------- Preferences (theme, calm mode) ----------
+
+function loadPrefs() {
+  try {
+    return JSON.parse(localStorage.getItem(PREFS_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+const prefs = loadPrefs();
+
+function isDark() {
+  return prefs.theme ? prefs.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function applyPrefs() {
+  const root = document.documentElement;
+  if (prefs.theme) root.dataset.theme = prefs.theme;
+  root.classList.toggle('calm', !!prefs.calm);
+  $('themeBtn').textContent = isDark() ? '☀️' : '🌌';
+  $('themeBtn').title = isDark() ? 'Light theme' : 'Dark theme';
+  $('calmBtn').setAttribute('aria-pressed', String(!!prefs.calm));
+  $('calmBtn').title = prefs.calm ? 'Calm mode on' : 'Calm mode off';
+}
+
+function savePrefs() {
+  try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch { /* prefs are optional */ }
+  applyPrefs();
+}
+
 // ---------- Wiring ----------
+
+$('themeBtn').addEventListener('click', () => { prefs.theme = isDark() ? 'light' : 'dark'; savePrefs(); });
+$('calmBtn').addEventListener('click', () => { prefs.calm = !prefs.calm; savePrefs(); });
 
 $('newBtn').addEventListener('click', newEntry);
 $('backBtn').addEventListener('click', closeEditor);
@@ -200,4 +250,5 @@ $('search').addEventListener('input', renderList);
 Object.values(fields).forEach((f) => f.addEventListener('input', touch));
 form.addEventListener('submit', (ev) => ev.preventDefault());
 
+applyPrefs();
 renderList();
