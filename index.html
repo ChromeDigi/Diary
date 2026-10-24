@@ -15,6 +15,7 @@
         <div class="toggles">
           <button id="themeBtn" class="icon" aria-label="Switch theme"></button>
           <button id="calmBtn" class="icon" aria-label="Calm mode" aria-pressed="false">🌙</button>
+          <button id="lockBtn" class="icon" aria-label="Privacy lock" title="Privacy lock">🔓</button>
         </div>
       </header>
       <div class="new-row">
@@ -162,6 +163,53 @@
           <div id="palettes" class="palettes"></div>
         </div>
       </section>
+
+      <section id="privacy" class="report" hidden aria-label="Privacy lock">
+        <div class="report-top">
+          <button type="button" id="privacyBack" class="ghost back">← Entries</button>
+          <div>
+            <h2 class="rewards-title" id="privacyTitle">🔓 Privacy lock</h2>
+            <span class="muted" id="privacyStatus"></span>
+          </div>
+        </div>
+
+        <div class="rcard" id="lockOff">
+          <h3>Lock your diary with a passcode</h3>
+          <p>Your entries, reports and therapy list get encrypted on this device. Nobody can read them without your passcode.</p>
+          <div class="warning">
+            <strong>⚠️ If you forget your passcode, your diary can't be recovered.</strong>
+            Not by you, not by anyone. Export a backup first and keep it somewhere safe.
+          </div>
+          <button type="button" id="lockExport" class="ghost">Export backup first</button>
+          <div class="lock-form">
+            <input type="password" id="newPass" placeholder="New passcode (6+ characters)" aria-label="New passcode" autocomplete="new-password">
+            <input type="password" id="newPass2" placeholder="Type it again" aria-label="Confirm passcode" autocomplete="new-password">
+            <label class="fun-toggle"><input type="checkbox" id="lockAgree"> I understand a forgotten passcode means my diary is gone</label>
+            <button type="button" id="lockOnBtn" class="primary">🔒 Turn on lock</button>
+            <p id="lockOnMsg" class="form-msg" role="status"></p>
+          </div>
+        </div>
+
+        <div class="rcard" id="lockOn" hidden>
+          <h3>Your diary is encrypted 🔒</h3>
+          <p class="muted">It locks again when you reload or close the page.</p>
+          <button type="button" id="lockNowBtn" class="primary">Lock now</button>
+          <div class="lock-form">
+            <h3>Change passcode</h3>
+            <input type="password" id="curPass" placeholder="Current passcode" aria-label="Current passcode" autocomplete="current-password">
+            <input type="password" id="chgPass" placeholder="New passcode (6+ characters)" aria-label="New passcode" autocomplete="new-password">
+            <input type="password" id="chgPass2" placeholder="Type it again" aria-label="Confirm new passcode" autocomplete="new-password">
+            <button type="button" id="changePassBtn" class="ghost">Change passcode</button>
+            <p id="changeMsg" class="form-msg" role="status"></p>
+          </div>
+          <div class="lock-form">
+            <h3>Turn off lock</h3>
+            <input type="password" id="offPass" placeholder="Current passcode" aria-label="Current passcode to turn off lock" autocomplete="current-password">
+            <button type="button" id="lockOffBtn" class="ghost">Turn off and decrypt</button>
+            <p id="offMsg" class="form-msg" role="status"></p>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -172,7 +220,24 @@
   </div>
   <div id="toast" class="toast" role="status" hidden></div>
 
+  <div id="lockScreen" class="lock-screen" hidden>
+    <form id="unlockForm" class="lock-card" autocomplete="off">
+      <div class="lock-icon" aria-hidden="true">🔒</div>
+      <h2>My Diary is locked</h2>
+      <input type="password" id="unlockPass" placeholder="Passcode" aria-label="Passcode" autocomplete="current-password">
+      <button type="submit" class="primary" id="unlockBtn">Unlock</button>
+      <p id="unlockMsg" class="form-msg" role="status"></p>
+      <details class="forgot">
+        <summary>Forgot passcode?</summary>
+        <p>There's no way to recover an encrypted diary without its passcode. You can erase it and start over, then import a backup if you have one.</p>
+        <input id="eraseConfirm" placeholder="Type ERASE to delete the locked diary" aria-label="Type ERASE to confirm">
+        <button type="button" id="eraseBtn" class="danger">Erase and start over</button>
+      </details>
+    </form>
+  </div>
+
   <script src="app.js"></script>
+  <script src="lock.js"></script>
   <script src="report.js"></script>
   <script src="rewards.js"></script>
 </body>

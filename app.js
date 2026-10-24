@@ -1,10 +1,11 @@
 // My Diary: entries are stored only in this browser's localStorage.
 
 const STORAGE_KEY = 'diary.entries.v2';
-const OLD_KEY = 'diary.entries.v1'; // read once for migration, never written or deleted
+const OLD_KEY = 'diary.entries.v1'; // read once for migration; only removed when the lock is turned on
 const PREFS_KEY = 'diary.prefs.v1';
 const REPORTS_KEY = 'diary.reports.v1'; // weekly report notes, keyed by week start date
 const TALK_KEY = 'diary.talk.v1'; // bring-to-therapy items
+const VAULT_KEY = 'diary.vault.v1'; // encrypted entries + reports + talk items (lock.js)
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 // Mood is 1–5, shown as orbs. Index 0 = score 1.
@@ -33,6 +34,7 @@ const list = $('entryList');
 const form = $('entryForm');
 const fields = { date: $('date'), title: $('title'), body: $('body'), oneLiner: $('oneLiner') };
 
+let vaultKey = null; // set by lock.js after unlocking; null when the lock is off
 let entries = load();
 let reports = loadReports();
 let talkItems = loadTalk();
@@ -40,6 +42,16 @@ let currentId = null;
 let saveTimer = null;
 
 // ---------- Storage ----------
+
+function hasVault() {
+  return localStorage.getItem(VAULT_KEY) !== null;
+}
+
+// Locked = encrypted data exists but isn't unlocked yet. Nothing may be saved then,
+// or the empty app would overwrite the real diary.
+function isLocked() {
+  return !vaultKey && hasVault();
+}
 
 function score(v) {
   return Number.isInteger(v) && v >= 1 && v <= 5 ? v : null;
@@ -79,7 +91,9 @@ function readList(key) {
   }
 }
 
+// With the lock on, data arrives later from lock.js after unlocking.
 function load() {
+  if (hasVault()) return [];
   const current = readList(STORAGE_KEY);
   if (current) return current.filter(isEntry).map(normalize);
   const old = readList(OLD_KEY);
@@ -90,6 +104,7 @@ function load() {
 }
 
 function loadReports() {
+  if (hasVault()) return {};
   try {
     const r = JSON.parse(localStorage.getItem(REPORTS_KEY));
     return r && typeof r === 'object' && !Array.isArray(r) ? r : {};
@@ -98,11 +113,25 @@ function loadReports() {
   }
 }
 
-function persistReports() {
-  try {
-    localStorage.setItem(REPORTS_KEY, JSON.stringify(reports));
-  } catch { /* the notes stay on screen; next edit retries */ }
+// Writes one data key, or the whole encrypted vault when the lock is on.
+// Returns false if nothing could be saved.
+function writeData(key, value) {
+  if (isLocked()) return false;
+  if (vaultKey) {
+    saveVault();
+  } else {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      return false;
+    }
+  }
   document.dispatchEvent(new Event('diary:changed'));
+  return true;
+}
+
+function persistReports() {
+  writeData(REPORTS_KEY, reports);
 }
 
 // Keeps only well-formed report notes from a backup.
@@ -126,25 +155,18 @@ function cleanTalk(t) {
 }
 
 function loadTalk() {
+  if (hasVault()) return [];
   const list = readList(TALK_KEY);
   return list ? list.map(cleanTalk).filter(Boolean) : [];
 }
 
 function persistTalk() {
-  try {
-    localStorage.setItem(TALK_KEY, JSON.stringify(talkItems));
-  } catch { /* the list stays on screen; next change retries */ }
-  document.dispatchEvent(new Event('diary:changed'));
+  writeData(TALK_KEY, talkItems);
 }
 
 function persist() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-    setStatus('Saved');
-    document.dispatchEvent(new Event('diary:changed'));
-  } catch {
-    setStatus('Could not save. Export a backup!');
-  }
+  if (writeData(STORAGE_KEY, entries)) setStatus(vaultKey ? 'Saved 🔒' : 'Saved');
+  else setStatus('Could not save. Export a backup!');
 }
 
 // ---------- Helpers ----------
@@ -302,10 +324,11 @@ function rate(key, value) {
   if (!wasComplete && isComplete(e)) document.dispatchEvent(new Event('diary:checkin-done'));
 }
 
-// The main pane shows one of: editor, report, rewards.
+// The main pane shows one of: editor, report, rewards, privacy.
 function hideViews() {
   $('report').hidden = true;
   $('rewards').hidden = true;
+  $('privacy').hidden = true;
 }
 
 function toggleTheme(t, refocus) {

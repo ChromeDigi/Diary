@@ -204,4 +204,6 @@ $('rewardsBack').addEventListener('click', closeEditor);
 $('funToggle').addEventListener('change', (ev) => { prefs.fun = ev.target.checked; savePrefs(); });
 document.addEventListener('diary:changed', renderRewardsSummary);
 document.addEventListener('diary:imported', renderRewardsSummary);
+// Unlocking loads existing data; its badges aren't new, so don't announce them.
+document.addEventListener('diary:unlocked', () => { knownBadges = null; renderRewardsSummary(); });
 renderRewardsSummary();

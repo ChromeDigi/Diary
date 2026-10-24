@@ -454,10 +454,10 @@ $('quickInput').addEventListener('keydown', (ev) => {
 document.addEventListener('click', (ev) => {
   if (!$('quickAdd').hidden && !ev.target.closest('#quickAdd, #fab')) toggleQuickAdd(false);
 });
-document.addEventListener('diary:imported', () => {
+['diary:imported', 'diary:unlocked'].forEach((name) => document.addEventListener(name, () => {
   renderHome();
   if (!reportEl.hidden) renderReport();
-});
+}));
 renderHome();
 
 let resizeTimer = null;

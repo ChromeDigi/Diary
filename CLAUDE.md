@@ -12,7 +12,8 @@ with no framework, dependencies or build step.
   `prefers-color-scheme: dark` (or `data-theme`); phone layout at `max-width: 720px`;
   print styles for the report at the end
 - `app.js`: core logic (storage, check-in, rendering, autosave, search, export/import, prefs)
-- `report.js`: weekly report, 💬 bring-to-therapy list, goal (loaded after `app.js`,
+- `lock.js`: optional passcode lock (Web Crypto PBKDF2 → AES-GCM; loaded right after `app.js`)
+- `report.js`: weekly report, 💬 bring-to-therapy list, goal (loaded after `lock.js`,
   uses its globals; SVG charts)
 - `rewards.js`: totals, badges, palettes, confetti, daily prompt (loaded last; all
   derived from existing data). `app.js` fires `diary:changed`, `diary:checkin-done`,
@@ -30,6 +31,9 @@ with no framework, dependencies or build step.
 - Weekly report notes: `diary.reports.v1` = `{ "<week start>": { wins, struggles, talk,
   sessionNotes, goal, updatedAt } }`; a `null` wins/struggles stays auto-filled.
 - Bring-to-therapy items: `diary.talk.v1` = `[{ id, text, addedOn, discussedOn }]`.
+- Lock on: entries, reports and talk items live only in `diary.vault.v1` (encrypted);
+  the plain keys are removed. All saves go through `writeData()` in `app.js`, which
+  refuses to write while locked. Never bypass it with a direct `localStorage.setItem`.
 - Backups are JSON `{ format: "my-diary", version: 3, entries, reports, talkItems }`
   (v2 and old plain arrays still import). Import only adds entries and items whose
   `id` is new, and report weeks not already present.

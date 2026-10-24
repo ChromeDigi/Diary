@@ -14,3 +14,4 @@
 - **Report notes in `diary.reports.v1`, backup format v2 with reports** (2026-10-23). Notes auto-fill until edited, so the weekly update never starts from scratch. Report code in `report.js` to keep `app.js` readable.
 - **Bring-to-therapy items in `diary.talk.v1`; session notes + goal stored with the week in `diary.reports.v1`; backup v3** (2026-10-23). A floating 💬 button makes adding one tap from anywhere.
 - **Rewards are derived, never stored** (2026-10-23): totals/badges come from entries, reports and the talk list, so nothing can get out of sync. Only `prefs.palette` and `prefs.fun` are saved. No streaks, by design.
+- **Passcode lock = real encryption** (2026-10-23): PBKDF2-SHA-256 (250k) → AES-GCM in `diary.vault.v1`; plain copies (incl. old v1) removed only after the vault is read back and verified. Prefs stay plain (no diary content). No recovery by design; exported backups stay plain JSON.
