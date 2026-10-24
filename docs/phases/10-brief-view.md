@@ -58,3 +58,4 @@ the PDF file name becomes `Therapy_Homework_<Mon D>-<Mon D>_<YYYY>`.
 
 ## Not verified
 - Real print dialog / PDF page count; real phone; Safari
+- "Remove this session" button (not exercised in tests)
