@@ -16,6 +16,8 @@ with no framework, dependencies or build step.
 - `report.js`: weekly report, 💬 bring-to-therapy list, goal (loaded after `lock.js`,
   uses its globals; SVG charts)
 - `fx.js`: logo tilt, starfield, number count-up (loaded after `lock.js`)
+- `brief.js`: Therapy Homework Brief, session to session (loaded after `report.js`;
+  format + rules in `docs/brief-format.md`)
 - `rewards.js`: totals, badges, palettes, confetti, daily prompt (loaded last; all
   derived from existing data). `app.js` fires `diary:changed`, `diary:checkin-done`,
   `diary:entry-opened`, `diary:imported` events that these files listen to.
@@ -36,12 +38,14 @@ with no framework, dependencies or build step.
 - Weekly report notes: `diary.reports.v1` = `{ "<week start>": { wins, struggles, talk,
   sessionNotes, goal, updatedAt } }`; a `null` wins/struggles stays auto-filled.
 - Bring-to-therapy items: `diary.talk.v1` = `[{ id, text, addedOn, discussedOn }]`.
-- Lock on: entries, reports, talk items and sleep live only in `diary.vault.v1` (encrypted);
+- Therapy briefs: `diary.briefs.v1` = `{ sessions: [dates], notes: { "<session>": { start,
+  subtitle, headline, focus, takeaway, updatedAt } } }`; `null` = auto-drafted from data.
+- Lock on: entries, reports, talk items, sleep and briefs live only in `diary.vault.v1` (encrypted);
   the plain keys are removed. All saves go through `writeData()` in `app.js`, which
   refuses to write while locked. Never bypass it with a direct `localStorage.setItem`.
-- Backups are JSON `{ format: "my-diary", version: 4, entries, reports, talkItems, sleep }`
-  (v2/v3 and old plain arrays still import). Import only adds entries and items whose
-  `id` is new, and report weeks / sleep nights not already present.
+- Backups are JSON `{ format: "my-diary", version: 5, entries, reports, talkItems, sleep, briefs }`
+  (v2–v4 and old plain arrays still import). Import only adds entries and items whose
+  `id` is new, and report weeks / sleep nights / sessions not already present.
 - Never commit real therapy content, names or the owner's brief PDFs: the repo is public.
 
 ## Running

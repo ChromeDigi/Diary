@@ -4,6 +4,7 @@ const STORAGE_KEY = 'diary.entries.v3';
 // Older entry keys, newest first: read once for migration; only removed when the lock is turned on.
 const OLD_KEYS = ['diary.entries.v2', 'diary.entries.v1'];
 const SLEEP_KEY = 'diary.sleep.v1'; // sleep per night, keyed by "night of" date
+const BRIEFS_KEY = 'diary.briefs.v1'; // therapy session dates + brief notes (brief.js)
 const PREFS_KEY = 'diary.prefs.v1';
 const REPORTS_KEY = 'diary.reports.v1'; // weekly report notes, keyed by week start date
 const TALK_KEY = 'diary.talk.v1'; // bring-to-therapy items
@@ -43,6 +44,7 @@ let entries = load();
 let reports = loadReports();
 let talkItems = loadTalk();
 let sleepLog = loadSleep();
+let briefs = loadBriefs();
 let sleepTimer = null;
 let currentId = null;
 let saveTimer = null;
@@ -137,6 +139,37 @@ function loadSleep() {
 
 function persistSleep() {
   writeData(SLEEP_KEY, sleepLog);
+}
+
+// ---------- Therapy briefs: session dates + editable notes ----------
+
+function cleanBriefs(obj) {
+  const src = obj && typeof obj === 'object' && !Array.isArray(obj) ? obj : {};
+  const text = (v) => (typeof v === 'string' ? v : null);
+  const sessions = [...new Set((Array.isArray(src.sessions) ? src.sessions : []).filter((d) => ISO_DATE.test(d)))].sort();
+  const notes = {};
+  Object.entries(src.notes && typeof src.notes === 'object' ? src.notes : {}).forEach(([s, n]) => {
+    if (!ISO_DATE.test(s) || !n || typeof n !== 'object') return;
+    notes[s] = {
+      start: ISO_DATE.test(n.start) ? n.start : null,
+      subtitle: text(n.subtitle), headline: text(n.headline), focus: text(n.focus), takeaway: text(n.takeaway),
+      updatedAt: Number(n.updatedAt) || Date.now(),
+    };
+  });
+  return { sessions, notes };
+}
+
+function loadBriefs() {
+  if (hasVault()) return cleanBriefs(null);
+  try {
+    return cleanBriefs(JSON.parse(localStorage.getItem(BRIEFS_KEY)));
+  } catch {
+    return cleanBriefs(null);
+  }
+}
+
+function persistBriefs() {
+  writeData(BRIEFS_KEY, briefs);
 }
 
 // Minutes asleep: as entered, else wake − bedtime − awake. Returns { min, calculated }.
@@ -421,11 +454,12 @@ function rate(key, value) {
   if (!wasComplete && isComplete(e)) document.dispatchEvent(new Event('diary:checkin-done'));
 }
 
-// The main pane shows one of: editor, report, rewards, privacy.
+// The main pane shows one of: editor, report, brief, rewards, privacy.
 function hideViews() {
   $('report').hidden = true;
   $('rewards').hidden = true;
   $('privacy').hidden = true;
+  $('brief').hidden = true;
 }
 
 // Skills: only what was actually used, plus an honest "need review" chip.
@@ -603,7 +637,7 @@ function deleteEntry() {
 }
 
 function exportBackup() {
-  const backup = { format: 'my-diary', version: 4, entries, reports, talkItems, sleep: sleepLog };
+  const backup = { format: 'my-diary', version: 5, entries, reports, talkItems, sleep: sleepLog, briefs };
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -644,12 +678,21 @@ async function importBackup(file) {
     newNights.forEach(([night, n]) => { sleepLog[night] = n; });
     if (newNights.length) persistSleep();
 
+    const inBriefs = cleanBriefs(data?.briefs);
+    const newSessions = inBriefs.sessions.filter((s) => !briefs.sessions.includes(s));
+    if (newSessions.length || Object.keys(inBriefs.notes).some((s) => !briefs.notes[s])) {
+      briefs.sessions = [...new Set([...briefs.sessions, ...inBriefs.sessions])].sort();
+      Object.entries(inBriefs.notes).forEach(([s, n]) => { if (!briefs.notes[s]) briefs.notes[s] = n; });
+      persistBriefs();
+    }
+
     renderList();
     document.dispatchEvent(new Event('diary:imported'));
     const extras = [
       weeks ? `${weeks} week${weeks === 1 ? '' : 's'} of report notes` : '',
       newTalk.length ? `${newTalk.length} bring-to-therapy item${newTalk.length === 1 ? '' : 's'}` : '',
       newNights.length ? `${newNights.length} night${newNights.length === 1 ? '' : 's'} of sleep` : '',
+      newSessions.length ? `${newSessions.length} therapy session${newSessions.length === 1 ? '' : 's'}` : '',
     ].filter(Boolean);
     alert(`Imported ${added.length} new entr${added.length === 1 ? 'y' : 'ies'}`
       + (extras.length ? `, ${extras.join(' and ')}.` : '.'));
