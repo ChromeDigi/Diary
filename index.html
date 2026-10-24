@@ -21,6 +21,7 @@
         <button id="checkinBtn" class="primary">+ Check in</button>
         <button id="newBtn" class="ghost">New entry</button>
       </div>
+      <button id="reportBtn" class="report-link">📊 This week's report</button>
       <input id="search" type="search" placeholder="Search entries…" aria-label="Search entries">
       <ul id="entryList" class="entry-list"></ul>
       <p id="emptyList" class="muted empty" hidden>No entries yet. Write your first one!</p>
@@ -59,9 +60,60 @@
           <button type="button" id="deleteBtn" class="danger">Delete</button>
         </div>
       </form>
+
+      <section id="report" class="report" hidden aria-label="Weekly report">
+        <div class="report-top">
+          <button type="button" id="reportBack" class="ghost back">← Entries</button>
+          <div class="week-nav">
+            <button type="button" id="prevWeek" class="icon" aria-label="Previous week">‹</button>
+            <div>
+              <h2 id="weekTitle"></h2>
+              <span id="weekTag" class="muted"></span>
+            </div>
+            <button type="button" id="nextWeek" class="icon" aria-label="Next week">›</button>
+          </div>
+          <div class="report-actions">
+            <button type="button" id="thisWeekBtn" class="ghost">This week</button>
+            <label class="week-start">Week starts
+              <select id="weekStart"></select>
+            </label>
+            <button type="button" id="printBtn" class="primary">Print / save PDF</button>
+          </div>
+        </div>
+
+        <div id="tiles" class="tiles"></div>
+
+        <div class="report-grid">
+          <div class="rcard wide">
+            <h3>How the week went</h3>
+            <div id="legend" class="legend"></div>
+            <div id="chart" class="chart"></div>
+          </div>
+          <div class="rcard">
+            <h3>Mood each day</h3>
+            <div id="strip" class="strip"></div>
+          </div>
+          <div class="rcard">
+            <h3>Top themes</h3>
+            <div id="topThemes"></div>
+          </div>
+          <div class="rcard wide">
+            <h3>Highlights</h3>
+            <ul id="highlights" class="highlights"></ul>
+          </div>
+          <div class="rcard wide notes">
+            <div class="notes-head">
+              <h3>Notes for therapy</h3>
+              <button type="button" id="refillBtn" class="ghost">Refill from entries</button>
+            </div>
+            <div id="notes"></div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
   <script src="app.js"></script>
+  <script src="report.js"></script>
 </body>
 </html>

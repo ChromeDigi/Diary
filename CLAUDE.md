@@ -7,10 +7,12 @@ Guidance for Claude Code when working in this repository.
 **My Diary**: a private, single-page diary web app. Plain HTML, CSS and JavaScript
 with no framework, dependencies or build step.
 
-- `index.html`: page structure (sidebar entry list + editor)
+- `index.html`: page structure (sidebar entry list + editor + weekly report)
 - `styles.css`: styling; colors are CSS variables on `:root`, with a dark theme under
-  `prefers-color-scheme: dark`; the phone layout is at `max-width: 720px`
-- `app.js`: all logic (storage, rendering, autosave, search, export/import)
+  `prefers-color-scheme: dark` (or `data-theme`); phone layout at `max-width: 720px`;
+  print styles for the report at the end
+- `app.js`: core logic (storage, check-in, rendering, autosave, search, export/import, prefs)
+- `report.js`: weekly report (loaded after `app.js`, uses its globals; SVG charts)
 
 ## How it works
 
@@ -21,7 +23,11 @@ with no framework, dependencies or build step.
 - If the entry shape changes, bump the key version and migrate old data, so existing
   diaries are never lost.
 - Typing autosaves with a 400 ms debounce (`touch()` → `persist()`).
-- Backups are exported and imported as JSON. Import only adds entries whose `id` is new.
+- Weekly report notes: `diary.reports.v1` = `{ "<week start>": { wins, struggles, talk,
+  updatedAt } }`; a `null` field stays auto-filled from entries.
+- Backups are JSON `{ format: "my-diary", version: 2, entries, reports }` (old plain
+  arrays still import). Import only adds entries whose `id` is new and report weeks
+  not already present.
 
 ## Running
 

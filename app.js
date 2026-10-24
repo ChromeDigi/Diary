@@ -3,6 +3,7 @@
 const STORAGE_KEY = 'diary.entries.v2';
 const OLD_KEY = 'diary.entries.v1'; // read once for migration, never written or deleted
 const PREFS_KEY = 'diary.prefs.v1';
+const REPORTS_KEY = 'diary.reports.v1'; // weekly report notes, keyed by week start date
 
 // Mood is 1–5, shown as orbs. Index 0 = score 1.
 const MOODS = [
@@ -31,6 +32,7 @@ const form = $('entryForm');
 const fields = { date: $('date'), title: $('title'), body: $('body'), oneLiner: $('oneLiner') };
 
 let entries = load();
+let reports = loadReports();
 let currentId = null;
 let saveTimer = null;
 
@@ -82,6 +84,27 @@ function load() {
   const migrated = old.filter(isEntry).map(normalize);
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated)); } catch { /* retried on next save */ }
   return migrated;
+}
+
+function loadReports() {
+  try {
+    const r = JSON.parse(localStorage.getItem(REPORTS_KEY));
+    return r && typeof r === 'object' && !Array.isArray(r) ? r : {};
+  } catch {
+    return {};
+  }
+}
+
+function persistReports() {
+  try {
+    localStorage.setItem(REPORTS_KEY, JSON.stringify(reports));
+  } catch { /* the notes stay on screen; next edit retries */ }
+}
+
+// Keeps only well-formed report notes from a backup.
+function cleanReport(r) {
+  const text = (v) => (typeof v === 'string' ? v : null);
+  return { wins: text(r.wins), struggles: text(r.struggles), talk: text(r.talk), updatedAt: Number(r.updatedAt) || Date.now() };
 }
 
 function persist() {
@@ -257,6 +280,7 @@ function openEntry(id) {
   fields.title.value = e.title;
   fields.body.value = e.body;
   fields.oneLiner.value = e.oneLiner;
+  $('report').hidden = true;
   renderCheckin();
   form.hidden = false;
   form.classList.remove('swing');
@@ -286,6 +310,7 @@ function checkIn() {
 function closeEditor() {
   currentId = null;
   form.hidden = true;
+  $('report').hidden = true;
   $('placeholder').hidden = false;
   app.classList.remove('editing');
   renderList();
@@ -314,7 +339,8 @@ function deleteEntry() {
 }
 
 function exportBackup() {
-  const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+  const backup = { format: 'my-diary', version: 2, entries, reports };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `diary-backup-${today()}.json`;
@@ -322,17 +348,31 @@ function exportBackup() {
   URL.revokeObjectURL(a.href);
 }
 
-// Accepts v1 and v2 backups; only adds entries whose id is new.
+// Accepts old plain-array backups and v2 backups with reports. Only adds entries
+// whose id is new, and report notes for weeks not already present.
 async function importBackup(file) {
   try {
     const data = JSON.parse(await file.text());
-    if (!Array.isArray(data)) throw new Error('not a list');
+    const list = Array.isArray(data) ? data : Array.isArray(data?.entries) ? data.entries : null;
+    if (!list) throw new Error('not a backup');
     const known = new Set(entries.map((e) => e.id));
-    const added = data.filter((e) => isEntry(e) && !known.has(String(e.id))).map(normalize);
+    const added = list.filter((e) => isEntry(e) && !known.has(String(e.id))).map(normalize);
     entries.push(...added);
     persist();
+
+    let weeks = 0;
+    const incoming = data?.reports && typeof data.reports === 'object' ? data.reports : {};
+    for (const [week, r] of Object.entries(incoming)) {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(week) && r && typeof r === 'object' && !reports[week]) {
+        reports[week] = cleanReport(r);
+        weeks++;
+      }
+    }
+    if (weeks) persistReports();
+
     renderList();
-    alert(`Imported ${added.length} new entr${added.length === 1 ? 'y' : 'ies'}.`);
+    alert(`Imported ${added.length} new entr${added.length === 1 ? 'y' : 'ies'}`
+      + (weeks ? ` and ${weeks} week${weeks === 1 ? '' : 's'} of report notes.` : '.'));
   } catch {
     alert('That file is not a valid diary backup.');
   }
