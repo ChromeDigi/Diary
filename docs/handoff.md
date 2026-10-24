@@ -1,10 +1,11 @@
 # Handoff
 
-**Goal:** Build the weekly-therapy-update diary, phase by phase. Next: Phase 3, quick daily check-in.
+**Goal:** Build the weekly-therapy-update diary, phase by phase. Next: Phase 4, weekly therapist report.
 
 ## Status
 - Phase 1 (MVP) done, live, tested: https://chromedigi.github.io/Diary/
 - Phase 2 (3D Aurora glass redesign) done: [phases/2-redesign.md](phases/2-redesign.md).
+- Phase 3 (daily check-in, storage v2) done: [phases/3-checkin.md](phases/3-checkin.md).
 - Roadmap: [plan.md](plan.md) (design first, owner-chosen).
 - Prompts for each phase: [prompts.md](prompts.md).
 - Repo: ChromeDigi/Diary (public), branch `main`; every push deploys to Pages.
@@ -15,9 +16,9 @@
 - Decisions logged: [decisions.md](decisions.md)
 
 ## Next steps
-1. Run prompt 3 from [prompts.md](prompts.md): write `docs/phases/3-checkin.md` first.
-2. Entry shape changes: bump to `diary.entries.v2`, migrate v1 (keep v1). Reuse ideas from [phases/2-tags.md](phases/2-tags.md).
-3. Build in the Aurora glass style (orbs, glass cards, calm mode).
+1. Run prompt 4 from [prompts.md](prompts.md): write `docs/phases/4-report.md` first.
+2. Data: per-day mood/energy/anxiety/sleep (1–5 or null; average if several entries a day), themes, one-liners.
+3. Charts as hand-made inline SVG; print/PDF stylesheet; compare with last week.
 
 ## Key files
 `app.js`, `styles.css`, `index.html`, `docs/prompts.md`; prototype `.claude/proto.html` (git-ignored)

@@ -17,7 +17,10 @@
           <button id="calmBtn" class="icon" aria-label="Calm mode" aria-pressed="false">🌙</button>
         </div>
       </header>
-      <button id="newBtn" class="primary">+ New entry</button>
+      <div class="new-row">
+        <button id="checkinBtn" class="primary">+ Check in</button>
+        <button id="newBtn" class="ghost">New entry</button>
+      </div>
       <input id="search" type="search" placeholder="Search entries…" aria-label="Search entries">
       <ul id="entryList" class="entry-list"></ul>
       <p id="emptyList" class="muted empty" hidden>No entries yet. Write your first one!</p>
@@ -38,8 +41,17 @@
         <div class="editor-top">
           <button type="button" id="backBtn" class="ghost back">← Entries</button>
           <input id="date" type="date" aria-label="Date">
-          <div class="moods" id="moods" role="radiogroup" aria-label="Mood"></div>
         </div>
+        <section class="checkin" aria-label="Daily check-in">
+          <div class="checkin-head">
+            <h2>Check-in</h2>
+            <span id="doneBadge" class="done" hidden>Check-in done ✓</span>
+          </div>
+          <div class="moods" id="moods" role="radiogroup" aria-label="Mood"></div>
+          <div class="scales" id="scales"></div>
+          <div class="themes" id="themes"></div>
+          <input id="oneLiner" class="one-liner" placeholder="Biggest thing today" aria-label="Biggest thing today" maxlength="140">
+        </section>
         <input id="title" class="title" placeholder="Title" aria-label="Title">
         <textarea id="body" placeholder="Dear diary…" aria-label="Entry"></textarea>
         <div class="editor-foot">

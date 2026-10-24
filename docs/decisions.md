@@ -10,3 +10,4 @@
 - **Charts are hand-made inline SVG** (2026-10-23), keeping the app dependency-free.
 - **Aurora glass style + CSS 3D, no libraries** (owner, 2026-10-23, from a live prototype). Remotion ruled out for the UI (video tool, needs Node); could return later for recap videos. Calm mode + reduced motion turn all motion off.
 - **UI prefs in `diary.prefs.v1`** (2026-10-23), separate from entries, so prefs never touch the entry schema.
+- **Check-in = tap scales 1–5 + mood as 1–5 orbs** (owner, 2026-10-23). Skippable ratings keep weekly charts honest; numbers feed Phase 4. Storage → `diary.entries.v2`, v1 kept.

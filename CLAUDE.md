@@ -14,8 +14,10 @@ with no framework, dependencies or build step.
 
 ## How it works
 
-- Entries live only in the browser's `localStorage` under the key `diary.entries.v1`.
-  Each entry is `{ id, date (YYYY-MM-DD), title, body, mood, updatedAt }`.
+- Entries live only in the browser's `localStorage` under the key `diary.entries.v2`.
+  Each entry is `{ id, date (YYYY-MM-DD), title, body, mood, energy, anxiety, sleep,
+  themes, oneLiner, updatedAt }`; ratings are 1–5 or `null`. Old `diary.entries.v1`
+  data is migrated on first load and left untouched. UI prefs: `diary.prefs.v1`.
 - If the entry shape changes, bump the key version and migrate old data, so existing
   diaries are never lost.
 - Typing autosaves with a 400 ms debounce (`touch()` → `persist()`).
