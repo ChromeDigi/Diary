@@ -1,6 +1,6 @@
 # Handoff
 
-**Goal:** Turn the app's report into the Therapy Homework Brief ([brief-format.md](brief-format.md)). Phases 9 (data) and 10 (Brief view, `brief.js`) done; next: Phase 11, Word export + polish.
+**Goal:** Turn the app's report into the Therapy Homework Brief ([brief-format.md](brief-format.md)). Phases 9 (data), 10 (Brief view) and 11 (.docx export) done; next: owner tries a real brief (open the .docx in Word, print a PDF) and gives feedback.
 
 ## Status
 - Live: https://chromedigi.github.io/Diary/ (repo ChromeDigi/Diary, public; every push to `main` deploys)

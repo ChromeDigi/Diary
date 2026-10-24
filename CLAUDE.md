@@ -16,6 +16,7 @@ with no framework, dependencies or build step.
 - `report.js`: weekly report, 💬 bring-to-therapy list, goal (loaded after `lock.js`,
   uses its globals; SVG charts)
 - `fx.js`: logo tilt, starfield, number count-up (loaded after `lock.js`)
+- `docx.js`: tiny ZIP + .docx writer, no libraries (loaded before `brief.js`)
 - `brief.js`: Therapy Homework Brief, session to session (loaded after `report.js`;
   format + rules in `docs/brief-format.md`)
 - `rewards.js`: totals, badges, palettes, confetti, daily prompt (loaded last; all

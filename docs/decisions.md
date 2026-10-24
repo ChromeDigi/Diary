@@ -18,3 +18,4 @@
 - **Logo = holographic foil (G), chosen from 9 live previews** (owner, 2026-10-23); plus glowing ring, jelly taps, sliding entries, starfield, count-up. All motion off in calm mode.
 - **Therapy Homework Brief becomes the main output** (owner, 2026-10-23), following the owner's existing workflow ([brief-format.md](brief-format.md)). Sleep is entered manually (owner choice: Apple Health can't be read from a web page; export is huge). Skills are logged honestly with a "need review" option. Entries → v3, backup v4.
 - **Brief periods = session dates** (owner, 2026-10-23): previous session + 1 → session; first brief 13 days back, start editable. Auto drafts state data only; interpretation is mine to type. Briefs in `diary.briefs.v1`, backup v5.
+- **.docx written by hand (`docx.js`: stored ZIP + minimal WordprocessingML)** (owner chose a real .docx, 2026-10-23), keeping the app dependency-free.

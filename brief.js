@@ -137,6 +137,35 @@ function editable(tag, className, field, d, placeholder) {
   return node;
 }
 
+const BRIEF_FOOTNOTE = 'Sleep values are entered from Apple Health; "est." = estimated, "calc." = calculated from bedtime/wake. '
+  + 'Mood and anxiety are my own 1–5 ratings. Missing values are left blank, not filled in.';
+
+function skillsText(d) {
+  const used = d.skillCounts.length
+    ? `Used: ${d.skillCounts.map(([s, n]) => `${s} (${n}×)`).join(', ')}.`
+    : 'No skills logged as used this period.';
+  const review = d.reviewDays.length
+    ? ` Noted as not used / need review on ${d.reviewDays.length} day${d.reviewDays.length === 1 ? '' : 's'}: ${d.reviewDays.map(shortDate).join(', ')}.`
+    : '';
+  return used + review;
+}
+
+// The text shown for an editable part: my edit, else the auto draft.
+function fieldText(field, d) {
+  const saved = briefs.notes[briefSession]?.[field];
+  return saved == null ? autoText(field, d) : saved;
+}
+
+// Up to 4 dashboard cards, only for metrics the data supports.
+function cardData(d) {
+  const cards = [];
+  if (d.sleepAvg != null) cards.push({ label: 'Average sleep', value: formatMinutes(d.sleepAvg), sub: `${d.sleepCount} night${d.sleepCount === 1 ? '' : 's'} · range ${formatMinutes(d.sleepMin)}–${formatMinutes(d.sleepMax)}` });
+  if (d.sleepCount) cards.push({ label: 'Short nights (< 6 h)', value: `${d.shortNights} of ${d.sleepCount}`, sub: d.estimated ? `${d.estimated} estimated` : 'all as logged' });
+  if (d.mood != null) cards.push({ label: 'Mood (self-rated)', value: `${d.mood.toFixed(1)} / 5`, sub: `${d.moodDays} day${d.moodDays === 1 ? '' : 's'}` });
+  if (d.anxiety != null) cards.push({ label: 'Anxiety (self-rated)', value: `${d.anxiety.toFixed(1)} / 5`, sub: `${d.anxietyDays} day${d.anxietyDays === 1 ? '' : 's'}` });
+  return cards.slice(0, 4);
+}
+
 function briefCard(label, value, sub) {
   const c = el('div', 'b-card');
   c.append(el('div', 'b-card-label', label), el('div', 'b-card-value', value));
@@ -163,13 +192,9 @@ function renderBriefDoc() {
   headline.append(el('h2', '', 'Period headline'),
     editable('p', 'b-headline', 'headline', d, '1–3 sentences on the main pattern for this period'));
 
-  const cards = [];
-  if (d.sleepAvg != null) cards.push(briefCard('Average sleep', formatMinutes(d.sleepAvg), `${d.sleepCount} night${d.sleepCount === 1 ? '' : 's'} · range ${formatMinutes(d.sleepMin)}–${formatMinutes(d.sleepMax)}`));
-  if (d.sleepCount) cards.push(briefCard('Short nights (< 6 h)', `${d.shortNights} of ${d.sleepCount}`, d.estimated ? `${d.estimated} estimated` : 'all as logged'));
-  if (d.mood != null) cards.push(briefCard('Mood (self-rated)', `${d.mood.toFixed(1)} / 5`, `${d.moodDays} day${d.moodDays === 1 ? '' : 's'}`));
-  if (d.anxiety != null) cards.push(briefCard('Anxiety (self-rated)', `${d.anxiety.toFixed(1)} / 5`, `${d.anxietyDays} day${d.anxietyDays === 1 ? '' : 's'}`));
+  const cards = cardData(d).map((c) => briefCard(c.label, c.value, c.sub));
   const dash = el('section', 'b-cards');
-  dash.append(...cards.slice(0, 4));
+  dash.append(...cards);
 
   const sleep = el('section', 'b-section');
   sleep.append(el('h2', '', 'Sleep snapshot'));
@@ -220,13 +245,7 @@ function renderBriefDoc() {
 
   const skills = el('section', 'b-section');
   skills.append(el('h2', '', 'Skills'));
-  const used = d.skillCounts.length
-    ? `Used: ${d.skillCounts.map(([s, n]) => `${s} (${n}×)`).join(', ')}.`
-    : 'No skills logged as used this period.';
-  const review = d.reviewDays.length
-    ? ` Noted as not used / need review on ${d.reviewDays.length} day${d.reviewDays.length === 1 ? '' : 's'}: ${d.reviewDays.map(shortDate).join(', ')}.`
-    : '';
-  skills.append(el('p', '', used + review));
+  skills.append(el('p', '', skillsText(d)));
 
   const focus = el('section', 'b-section');
   focus.append(el('h2', '', 'Therapy focus'), editable('div', 'b-focus', 'focus', d, 'The 2–4 issues worth discussing next'));
@@ -234,10 +253,83 @@ function renderBriefDoc() {
   const takeaway = el('section', 'b-section b-takeaway');
   takeaway.append(el('h2', '', 'Overall takeaway'), editable('p', '', 'takeaway', d, 'One short closing synthesis'));
 
-  const foot = el('footer', 'b-foot', 'Sleep values are entered from Apple Health; "est." = estimated, "calc." = calculated from bedtime/wake. '
-    + 'Mood and anxiety are my own 1–5 ratings. Missing values are left blank, not filled in.');
+  const foot = el('footer', 'b-foot', BRIEF_FOOTNOTE);
 
   doc.replaceChildren(head, headline, ...(cards.length ? [dash] : []), sleep, events, skills, focus, takeaway, foot);
+}
+
+// ---------- Word (.docx) copy, same content and order as the page ----------
+
+function briefDocxBody() {
+  const period = periodFor(briefSession);
+  const d = briefData(period);
+  const NAVY = '1B365D', STEEL = '4A6A8A', SOFT = '5B6B7C';
+  const heading = (t) => wPara(t, { bold: true, caps: true, color: NAVY, size: 10, before: 12, after: 4, border: 'D6E0EA' });
+  const small = (t) => wPara(t, { color: SOFT, size: 8.5 });
+  const out = [
+    wPara('THERAPY HOMEWORK BRIEF', { bold: true, color: NAVY, size: 17, align: 'center', after: 2 }),
+    wPara(rangeText(period), { bold: true, color: STEEL, size: 11, align: 'center', after: 2 }),
+    wPara(fieldText('subtitle', d), { color: SOFT, size: 9.5, align: 'center', after: 8, border: NAVY, borderSize: 12 }),
+    heading('Period headline'),
+    wPara(fieldText('headline', d) || ' ', { size: 11 }),
+  ];
+
+  const cards = cardData(d);
+  if (cards.length) {
+    const w = Math.floor(10080 / cards.length);
+    out.push(wTable([cards.map((c) => wPara(c.label, { bold: true, caps: true, color: SOFT, size: 7.5, after: 0 })
+      + wPara(c.value, { bold: true, color: NAVY, size: 15, after: 0 })
+      + wPara(c.sub, { color: SOFT, size: 8, after: 0 }))],
+    { widths: cards.map(() => w), fills: ['EEF3F8'], borderColor: 'FFFFFF' }), wPara(' ', { after: 0 }));
+  }
+
+  out.push(heading('Sleep snapshot'));
+  if (d.logged.length) {
+    const head = ['Night of → wake', 'Total', 'Bedtime', 'Wake', 'Awake', 'Score', 'Note']
+      .map((h) => wPara(h, { bold: true, color: 'FFFFFF', size: 9, after: 0 }));
+    const rows = d.logged.map((r) => [
+      `${fmtDate(r.night, { weekday: 'short', month: 'short', day: 'numeric' })} → ${fmtDate(r.wake, { weekday: 'short' })}`,
+      formatMinutes(r.total.min), r.n.bedtime || '–', r.n.wake || '–',
+      r.n.awakeMin != null ? `${r.n.awakeMin} min` : '–', r.n.score != null ? String(r.n.score) : '–',
+      [r.n.estimated && 'est.', r.total.calculated && 'calc.'].filter(Boolean).join(', '),
+    ].map((t) => wPara(t, { size: 9, after: 0 })));
+    const fills = [null, ...d.logged.map((r, i) => (r.total.min != null && r.total.min < SHORT_NIGHT_MIN ? 'FFF6D6' : i % 2 ? 'F5F8FB' : null))];
+    out.push(wTable([head, ...rows], { header: true, widths: [2300, 1100, 1100, 1100, 1100, 1000, 2380], fills }));
+    if (d.unlogged) out.push(small(`${d.unlogged} night${d.unlogged === 1 ? '' : 's'} not logged (left blank, not estimated).`));
+  } else {
+    out.push(small('No sleep logged for this period.'));
+  }
+
+  out.push(heading('Key events & functioning'));
+  if (d.keyEvents.length) {
+    const head = ['Date', 'What happened', 'Why it matters'].map((h) => wPara(h, { bold: true, color: 'FFFFFF', size: 9, after: 0 }));
+    const rows = d.keyEvents.map((e) => [
+      wPara(fmtDate(e.date, { weekday: 'short', month: 'short', day: 'numeric' }), { bold: true, color: STEEL, size: 9, after: 0 }),
+      wPara(e.oneLiner.trim() || e.title.trim() || '–', { size: 9, after: 0 }),
+      wPara(e.meaning.trim() || '–', { size: 9, after: 0 })
+        + (e.skills.length ? wPara(`Skills used: ${e.skills.join(', ')}`, { color: SOFT, size: 8, after: 0 }) : '')
+        + (e.skillsReview ? wPara('Skills not used; need review', { color: SOFT, size: 8, after: 0 }) : ''),
+    ]);
+    out.push(wTable([head, ...rows], { header: true, widths: [1500, 4200, 4380], fills: [null, ...rows.map((_, i) => (i % 2 ? 'F5F8FB' : null))] }));
+  } else {
+    out.push(small('No key events marked for this period.'));
+  }
+
+  out.push(heading('Skills'), wPara(skillsText(d)));
+  out.push(heading('Therapy focus'), wPara(fieldText('focus', d) || ' '));
+  out.push(heading('Overall takeaway'),
+    wTable([[wPara(fieldText('takeaway', d) || ' ', { after: 0 })]], { widths: [10080], fills: ['EEF3F8'], borderColor: 'EEF3F8' }));
+  out.push(wPara(BRIEF_FOOTNOTE, { color: SOFT, size: 7.5, before: 10 }));
+  return out.join('');
+}
+
+function downloadDocx() {
+  const blob = buildDocx(briefDocxBody());
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${fileName(periodFor(briefSession))}.docx`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 function renderBrief() {
@@ -247,7 +339,7 @@ function renderBrief() {
   }
   $('briefEmpty').hidden = has;
   $('briefDoc').hidden = !has;
-  ['prevBrief', 'nextBrief', 'refillBrief', 'printBrief', 'removeSession', 'briefStart', 'sessionPick'].forEach((id) => { $(id).disabled = !has; });
+  ['prevBrief', 'nextBrief', 'refillBrief', 'printBrief', 'wordBrief', 'removeSession', 'briefStart', 'sessionPick'].forEach((id) => { $(id).disabled = !has; });
   $('sessionPick').replaceChildren(...briefs.sessions.map((s) => {
     const o = el('option', '', `Session ${fmtDate(s, { month: 'short', day: 'numeric', year: 'numeric' })} (${rangeText(periodFor(s))})`);
     o.value = s;
@@ -327,6 +419,7 @@ $('refillBrief').addEventListener('click', () => {
 // Printing from the brief names the PDF like the usual homework files.
 let titleBeforePrint = document.title;
 $('printBrief').addEventListener('click', () => window.print());
+$('wordBrief').addEventListener('click', downloadDocx);
 window.addEventListener('beforeprint', () => {
   titleBeforePrint = document.title;
   if (!briefEl.hidden && briefSession) document.title = fileName(periodFor(briefSession));

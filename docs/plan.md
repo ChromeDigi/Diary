@@ -19,7 +19,7 @@ Build prompts per phase: [prompts.md](prompts.md).
 | 8 | [Visual polish](phases/8-visual-polish.md): holographic logo, glowing borders, jelly orbs, starfield | Done |
 | 9 | [Brief data](phases/9-brief-data.md): sleep per night, skills used, key events | Done |
 | 10 | [Therapy Homework Brief view](phases/10-brief-view.md) (session-to-session) + clinical print style | Done |
-| 11 | Word export + brief polish | Next |
+| 11 | [Word (.docx) export](phases/11-word-export.md) of the brief | Done |
 
 Each phase gets `docs/phases/<n>-<name>.md` before it is built.
 
