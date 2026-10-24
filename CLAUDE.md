@@ -48,10 +48,11 @@ Nothing needs installing.
   3. **Review + test**: check the diff, run the app, verify.
   4. **Wrap up**: update the docs (status, decisions, what's next), commit, push,
      give a short final review.
-- One session = one phase. When it's done, the session is done; the next phase starts
-  in a fresh session that reads the docs.
-- Continue in the same session only for closely related concurrent work while the
-  context is fresh. Don't resume a long, old session hours later; start fresh from the docs.
+- Keep working in the same session across phases. Don't start a new session just
+  because a phase is done.
+- Only when the chat feels heavy and context is at ~60%: ask (clickable choice) about a
+  handoff, per the user-wide "Context handoff" rule. Never hand off automatically.
+- Keep the docs current after each phase anyway, so any later session can pick up.
 
 ### Efficiency
 - Read only the files needed; no broad re-reading of the codebase.
