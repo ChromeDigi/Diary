@@ -34,6 +34,7 @@
       <input id="search" type="search" placeholder="Search entries…" aria-label="Search entries">
       <ul id="entryList" class="entry-list"></ul>
       <p id="emptyList" class="muted empty" hidden>No entries yet. Write your first one!</p>
+      <button id="setupBtn" class="ghost setup-link">📲 iPhone Health &amp; calendar setup</button>
       <footer class="sidebar-foot">
         <button id="exportBtn" class="ghost">Export backup</button>
         <label class="ghost file-btn">Import backup
@@ -68,6 +69,7 @@
               <span id="sleepNight" class="muted"></span>
               <span id="sleepTotal" class="sleep-total"></span>
             </div>
+            <p id="activityLine" class="activity-line" hidden></p>
             <div class="sleep-grid">
               <label>Bedtime <input type="time" id="sleepBed"></label>
               <label>Wake <input type="time" id="sleepWake"></label>
@@ -205,6 +207,48 @@
         <article id="briefDoc" class="brief-doc" aria-label="Therapy homework brief"></article>
       </section>
 
+      <section id="setup" class="report" hidden aria-label="iPhone setup">
+        <div class="report-top">
+          <button type="button" id="setupBack" class="ghost back">← Entries</button>
+          <div>
+            <h2 class="rewards-title">📲 iPhone Health &amp; calendar</h2>
+            <span class="muted" id="setupStatus"></span>
+          </div>
+        </div>
+
+        <div class="rcard guide">
+          <h3>How it works</h3>
+          <p>A web page can't read Apple Health or your calendar, but Apple's <strong>Shortcuts</strong> app can. You build one shortcut called "Diary check-in" and put it on your home screen. Each morning you tap it: it collects last night's sleep, the last two days of activity (from Health, which includes the Fitness app) and your work calendar for the coming week, then opens this diary with it filled in.</p>
+          <p class="muted">The data travels after the <code>#</code> in the link, which browsers never send to a server. Nights you typed or edited yourself keep your values.</p>
+        </div>
+
+        <div class="rcard guide">
+          <h3>1 · Permissions</h3>
+          <p>The first time the shortcut runs, iOS asks to read Health and Calendars. Tap <strong>Allow</strong> / <strong>Turn On All</strong>. To check later: Settings → Privacy &amp; Security → <strong>Health → Shortcuts</strong> and <strong>Calendars → Shortcuts</strong>.</p>
+        </div>
+
+        <div class="rcard guide">
+          <h3>2 · Build the shortcut</h3>
+          <p class="muted">Shortcuts → + → name it "Diary check-in". For every date use <em>Format Date → Custom</em> <code>yyyy-MM-dd'T'HH:mm</code> (day-only values: <code>yyyy-MM-dd</code>).</p>
+          <ol class="steps">
+            <li><strong>Sleep:</strong> <em>Find Health Samples</em> (Type: Sleep Analysis, Start Date in the last 2 days, oldest first) → <em>Repeat with Each</em>: format Start and End Date → <em>Text</em> <code>SLEEP|start|end|Value</code> → <em>Add to Variable</em> "Lines".</li>
+            <li><strong>Activity:</strong> for Steps → <code>STEPS</code>, Exercise Time → <code>EXERCISE</code>, Active Energy → <code>ENERGY</code>: <em>Find Health Samples</em> (last 2 days, <strong>Group By: Day</strong>) → <em>Repeat</em>: <code>STEPS|yyyy-MM-dd|Value</code> → add to "Lines".</li>
+            <li><strong>Workouts</strong> (if offered): <code>WORKOUT|start|end|Type</code> → add to "Lines".</li>
+            <li><strong>Work calendar:</strong> <em>Date</em> "today at 12:00 AM", <em>Adjust Date</em> +8 days → <em>Find Calendar Events</em> (your work calendar, start after today, before +8 days) → <em>Repeat</em>: <code>EVENT|start|end|Title</code> (or <code>busy</code> to keep titles private) → add to "Lines".</li>
+            <li><strong>Send:</strong> <em>Combine Text</em> (Lines, New Lines) → <em>Text</em> <code>DIARY-HEALTH 1</code> + new line + combined text → <em>URL Encode</em> → <em>Text</em> <code id="setupUrl"></code> + encoded text → <em>Open URLs</em>.</li>
+            <li><strong>Home screen:</strong> shortcut ⋯ → Add to Home Screen. Tap it each morning.</li>
+          </ol>
+          <p class="muted">Full guide: docs/iphone-shortcut.md in the project. Not yet tested on a real iPhone; tell me where a step looks different.</p>
+        </div>
+
+        <div class="rcard guide">
+          <h3>3 · Paste data by hand (backup / testing)</h3>
+          <textarea id="healthPaste" class="paste-box" placeholder="DIARY-HEALTH 1&#10;SLEEP|2026-10-23T23:41|2026-10-24T06:55|Core&#10;STEPS|2026-10-23|8421"></textarea>
+          <button type="button" id="healthImportBtn" class="primary">Import</button>
+          <p id="healthMsg" class="form-msg" role="status"></p>
+        </div>
+      </section>
+
       <section id="rewards" class="report" hidden aria-label="Rewards">
         <div class="report-top">
           <button type="button" id="rewardsBack" class="ghost back">← Entries</button>
@@ -300,6 +344,7 @@
   <script src="app.js"></script>
   <script src="lock.js"></script>
   <script src="fx.js"></script>
+  <script src="health.js"></script>
   <script src="report.js"></script>
   <script src="docx.js"></script>
   <script src="brief.js"></script>

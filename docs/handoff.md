@@ -1,6 +1,6 @@
 # Handoff
 
-**Goal:** Turn the app's report into the Therapy Homework Brief ([brief-format.md](brief-format.md)). Phases 9 (data), 10 (Brief view) and 11 (.docx export) done; next: owner tries a real brief (open the .docx in Word, print a PDF) and gives feedback.
+**Goal:** Turn the app's report into the Therapy Homework Brief ([brief-format.md](brief-format.md)). Phases 9–12 done (brief data, Brief view, .docx, iPhone Health + calendar import). Next: owner builds the Shortcut ([iphone-shortcut.md](iphone-shortcut.md)); then Phase 13, day types + look-ahead + activity in the brief.
 
 ## Status
 - Live: https://chromedigi.github.io/Diary/ (repo ChromeDigi/Diary, public; every push to `main` deploys)

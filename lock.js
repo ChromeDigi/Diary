@@ -3,7 +3,7 @@
 
 const KDF_ITERATIONS = 250000;
 const MIN_PASS = 6;
-const PLAIN_KEYS = [STORAGE_KEY, ...OLD_KEYS, REPORTS_KEY, TALK_KEY, SLEEP_KEY, BRIEFS_KEY];
+const PLAIN_KEYS = [STORAGE_KEY, ...OLD_KEYS, REPORTS_KEY, TALK_KEY, SLEEP_KEY, BRIEFS_KEY, DAYS_KEY];
 const cryptoOk = !!(window.crypto && crypto.subtle && window.isSecureContext !== false);
 
 let vaultMeta = null; // { salt, iterations } of the unlocked vault
@@ -32,7 +32,7 @@ async function deriveKey(pass, salt, iterations) {
 
 async function encryptBundle(key, meta) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const plain = new TextEncoder().encode(JSON.stringify({ entries, reports, talkItems, sleep: sleepLog, briefs }));
+  const plain = new TextEncoder().encode(JSON.stringify({ entries, reports, talkItems, sleep: sleepLog, briefs, days: daysLog }));
   const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plain);
   return { v: 1, kdf: 'PBKDF2-SHA-256', iterations: meta.iterations, salt: meta.salt, iv: toB64(iv), data: toB64(data) };
 }
@@ -87,6 +87,7 @@ function applyBundle(b) {
   talkItems = (Array.isArray(b.talkItems) ? b.talkItems : []).map(cleanTalk).filter(Boolean);
   sleepLog = cleanSleepLog(b.sleep);
   briefs = cleanBriefs(b.briefs);
+  daysLog = cleanDays(b.days);
   animateList = true;
   renderList();
   document.dispatchEvent(new Event('diary:unlocked'));
@@ -130,6 +131,7 @@ async function turnOff(pass) {
   localStorage.setItem(TALK_KEY, JSON.stringify(talkItems));
   localStorage.setItem(SLEEP_KEY, JSON.stringify(sleepLog));
   localStorage.setItem(BRIEFS_KEY, JSON.stringify(briefs));
+  localStorage.setItem(DAYS_KEY, JSON.stringify(daysLog));
   if (readList(STORAGE_KEY).length !== entries.length) throw new Error('plain copy failed');
   localStorage.removeItem(VAULT_KEY);
   vaultKey = null;

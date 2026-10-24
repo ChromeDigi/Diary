@@ -826,6 +826,18 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .file-btn:foc
   .b-table th, .b-table td { padding: 5px 4px; }
 }
 
+/* iPhone Health & calendar import (Phase 12) */
+.activity-line { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.setup-link { width: 100%; font-size: 0.85rem; }
+.guide p { margin: 0 0 8px; line-height: 1.55; }
+.guide code { font-size: 0.85em; padding: 1px 6px; border-radius: 6px; background: var(--glass); border: 1px solid var(--glass-border); overflow-wrap: anywhere; }
+.steps { margin: 8px 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; line-height: 1.55; }
+.paste-box {
+  width: 100%; min-height: 120px; resize: vertical; padding: 10px 14px; border-radius: 14px;
+  border: 1px solid var(--glass-border); background: var(--glass); color: var(--text);
+  font-family: ui-monospace, Consolas, monospace; font-size: 0.85rem; margin-bottom: 10px;
+}
+
 /* Calm mode and reduced motion: no movement */
 :root.calm *, :root.calm *::before, :root.calm *::after {
   animation: none !important;

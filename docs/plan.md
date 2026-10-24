@@ -20,6 +20,8 @@ Build prompts per phase: [prompts.md](prompts.md).
 | 9 | [Brief data](phases/9-brief-data.md): sleep per night, skills used, key events | Done |
 | 10 | [Therapy Homework Brief view](phases/10-brief-view.md) (session-to-session) + clinical print style | Done |
 | 11 | [Word (.docx) export](phases/11-word-export.md) of the brief | Done |
+| 12 | [Daily Health + work-calendar import](phases/12-health-import.md) via an iPhone Shortcut | Done |
+| 13 | [Day types, look-ahead, activity + workload in the brief](phases/13-day-types.md) | Next |
 
 Each phase gets `docs/phases/<n>-<name>.md` before it is built.
 

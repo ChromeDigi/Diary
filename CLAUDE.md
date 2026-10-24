@@ -16,6 +16,7 @@ with no framework, dependencies or build step.
 - `report.js`: weekly report, 💬 bring-to-therapy list, goal (loaded after `lock.js`,
   uses its globals; SVG charts)
 - `fx.js`: logo tilt, starfield, number count-up (loaded after `lock.js`)
+- `health.js`: imports the iPhone Shortcut text (`#health=` link or paste): sleep nights, activity, work calendar (loaded after `fx.js`; guide in `docs/iphone-shortcut.md`)
 - `docx.js`: tiny ZIP + .docx writer, no libraries (loaded before `brief.js`)
 - `brief.js`: Therapy Homework Brief, session to session (loaded after `report.js`;
   format + rules in `docs/brief-format.md`)
@@ -39,13 +40,15 @@ with no framework, dependencies or build step.
 - Weekly report notes: `diary.reports.v1` = `{ "<week start>": { wins, struggles, talk,
   sessionNotes, goal, updatedAt } }`; a `null` wins/struggles stays auto-filled.
 - Bring-to-therapy items: `diary.talk.v1` = `[{ id, text, addedOn, discussedOn }]`.
+- Days: `diary.days.v1` = `{ "<date>": { steps, exerciseMin, activeKcal, workouts, work, updatedAt } }`
+  from the Shortcut. Sleep records carry `source` ("health" | "manual"); manual wins.
 - Therapy briefs: `diary.briefs.v1` = `{ sessions: [dates], notes: { "<session>": { start,
   subtitle, headline, focus, takeaway, updatedAt } } }`; `null` = auto-drafted from data.
-- Lock on: entries, reports, talk items, sleep and briefs live only in `diary.vault.v1` (encrypted);
+- Lock on: entries, reports, talk items, sleep, briefs and days live only in `diary.vault.v1` (encrypted);
   the plain keys are removed. All saves go through `writeData()` in `app.js`, which
   refuses to write while locked. Never bypass it with a direct `localStorage.setItem`.
-- Backups are JSON `{ format: "my-diary", version: 5, entries, reports, talkItems, sleep, briefs }`
-  (v2–v4 and old plain arrays still import). Import only adds entries and items whose
+- Backups are JSON `{ format: "my-diary", version: 6, entries, reports, talkItems, sleep, briefs, days }`
+  (v2–v5 and old plain arrays still import). Import only adds entries and items whose
   `id` is new, and report weeks / sleep nights / sessions not already present.
 - Never commit real therapy content, names or the owner's brief PDFs: the repo is public.
 

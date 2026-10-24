@@ -5,6 +5,7 @@ const STORAGE_KEY = 'diary.entries.v3';
 const OLD_KEYS = ['diary.entries.v2', 'diary.entries.v1'];
 const SLEEP_KEY = 'diary.sleep.v1'; // sleep per night, keyed by "night of" date
 const BRIEFS_KEY = 'diary.briefs.v1'; // therapy session dates + brief notes (brief.js)
+const DAYS_KEY = 'diary.days.v1'; // per-day activity + work calendar from the iPhone Shortcut (health.js)
 const PREFS_KEY = 'diary.prefs.v1';
 const REPORTS_KEY = 'diary.reports.v1'; // weekly report notes, keyed by week start date
 const TALK_KEY = 'diary.talk.v1'; // bring-to-therapy items
@@ -45,6 +46,7 @@ let reports = loadReports();
 let talkItems = loadTalk();
 let sleepLog = loadSleep();
 let briefs = loadBriefs();
+let daysLog = loadDays();
 let sleepTimer = null;
 let currentId = null;
 let saveTimer = null;
@@ -116,8 +118,48 @@ function cleanSleep(n) {
     awakeMin: minutesOrNull(n.awakeMin, 24 * 60),
     score: minutesOrNull(n.score, 100),
     estimated: n.estimated === true,
+    source: n.source === 'health' ? 'health' : 'manual', // "manual wins" over Health imports
     updatedAt: Number(n.updatedAt) || Date.now(),
   };
+}
+
+// ---------- Days: activity + work calendar (filled by health.js) ----------
+
+function cleanDay(d) {
+  const num = (v, max) => (Number.isFinite(v) && v >= 0 && v <= max ? Math.round(v) : null);
+  const stamp = (v) => (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v) ? v : null);
+  const spans = (list, extra) => (Array.isArray(list) ? list : [])
+    .map((x) => x && stamp(x.start) && stamp(x.end) && { start: x.start, end: x.end, ...extra(x) })
+    .filter(Boolean);
+  return {
+    steps: num(d.steps, 200000),
+    exerciseMin: num(d.exerciseMin, 1440),
+    activeKcal: num(d.activeKcal, 20000),
+    workouts: spans(d.workouts, (x) => ({ type: typeof x.type === 'string' ? x.type.slice(0, 60) : '' })),
+    work: spans(d.work, (x) => ({ allDay: x.allDay === true, title: typeof x.title === 'string' ? x.title.slice(0, 120) : '' })),
+    updatedAt: Number(d.updatedAt) || Date.now(),
+  };
+}
+
+function cleanDays(obj) {
+  const out = {};
+  Object.entries(obj && typeof obj === 'object' && !Array.isArray(obj) ? obj : {}).forEach(([date, d]) => {
+    if (ISO_DATE.test(date) && d && typeof d === 'object') out[date] = cleanDay(d);
+  });
+  return out;
+}
+
+function loadDays() {
+  if (hasVault()) return {};
+  try {
+    return cleanDays(JSON.parse(localStorage.getItem(DAYS_KEY)));
+  } catch {
+    return {};
+  }
+}
+
+function persistDays() {
+  writeData(DAYS_KEY, daysLog);
 }
 
 function cleanSleepLog(obj) {
@@ -460,6 +502,7 @@ function hideViews() {
   $('rewards').hidden = true;
   $('privacy').hidden = true;
   $('brief').hidden = true;
+  $('setup').hidden = true;
 }
 
 // Skills: only what was actually used, plus an honest "need review" chip.
@@ -529,12 +572,23 @@ function renderSleep() {
   $('sleepScore').value = n?.score ?? '';
   $('sleepEst').checked = !!n?.estimated;
   renderSleepTotal(n);
+
+  // Yesterday's activity from the iPhone import, if any.
+  const d = daysLog[night];
+  const parts = d ? [
+    d.steps != null && `${d.steps.toLocaleString()} steps`,
+    d.exerciseMin != null && `${d.exerciseMin} min exercise`,
+    d.activeKcal != null && `${d.activeKcal.toLocaleString()} kcal active`,
+    ...d.workouts.map((w) => `🏋️ ${w.type || 'workout'}`),
+  ].filter(Boolean) : [];
+  $('activityLine').hidden = !parts.length;
+  $('activityLine').textContent = parts.length ? `Yesterday (${short(night)}): ${parts.join(' · ')}` : '';
 }
 
 function renderSleepTotal(n) {
   const t = sleepTotal(n);
   $('sleepTotal').textContent = t.min == null ? ''
-    : `${formatMinutes(t.min)}${t.calculated ? ' (calculated)' : ''}${n.estimated ? ' · estimated' : ''}`;
+    : `${formatMinutes(t.min)}${t.calculated ? ' (calculated)' : ''}${n.estimated ? ' · estimated' : ''}${n.source === 'health' ? ' · from Health' : ''}`;
 }
 
 function onSleepInput() {
@@ -549,6 +603,7 @@ function onSleepInput() {
     awakeMin: $('sleepAwake').value,
     score: $('sleepScore').value,
     estimated: $('sleepEst').checked,
+    source: 'manual', // my edit wins over later Health imports
   });
   const empty = !n.bedtime && !n.wake && n.asleepMin == null && n.awakeMin == null && n.score == null;
   if (empty) delete sleepLog[night];
@@ -637,7 +692,7 @@ function deleteEntry() {
 }
 
 function exportBackup() {
-  const backup = { format: 'my-diary', version: 5, entries, reports, talkItems, sleep: sleepLog, briefs };
+  const backup = { format: 'my-diary', version: 6, entries, reports, talkItems, sleep: sleepLog, briefs, days: daysLog };
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -678,6 +733,10 @@ async function importBackup(file) {
     newNights.forEach(([night, n]) => { sleepLog[night] = n; });
     if (newNights.length) persistSleep();
 
+    const newDays = Object.entries(cleanDays(data?.days)).filter(([date]) => !daysLog[date]);
+    newDays.forEach(([date, d]) => { daysLog[date] = d; });
+    if (newDays.length) persistDays();
+
     const inBriefs = cleanBriefs(data?.briefs);
     const newSessions = inBriefs.sessions.filter((s) => !briefs.sessions.includes(s));
     if (newSessions.length || Object.keys(inBriefs.notes).some((s) => !briefs.notes[s])) {
@@ -693,6 +752,7 @@ async function importBackup(file) {
       newTalk.length ? `${newTalk.length} bring-to-therapy item${newTalk.length === 1 ? '' : 's'}` : '',
       newNights.length ? `${newNights.length} night${newNights.length === 1 ? '' : 's'} of sleep` : '',
       newSessions.length ? `${newSessions.length} therapy session${newSessions.length === 1 ? '' : 's'}` : '',
+      newDays.length ? `${newDays.length} day${newDays.length === 1 ? '' : 's'} of activity/calendar` : '',
     ].filter(Boolean);
     alert(`Imported ${added.length} new entr${added.length === 1 ? 'y' : 'ies'}`
       + (extras.length ? `, ${extras.join(' and ')}.` : '.'));
