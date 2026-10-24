@@ -1,0 +1,19 @@
+{
+  "name": "diary-video",
+  "private": true,
+  "description": "Remotion videos for My Diary. Separate from the app, which stays dependency-free.",
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render Intro out/intro.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.538",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.538"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}
