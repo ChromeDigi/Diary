@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Diary</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar">
+      <header class="sidebar-head">
+        <h1>My Diary</h1>
+        <button id="newBtn" class="primary">+ New entry</button>
+      </header>
+      <input id="search" type="search" placeholder="Search entries…" aria-label="Search entries">
+      <ul id="entryList" class="entry-list"></ul>
+      <p id="emptyList" class="muted empty" hidden>No entries yet. Write your first one!</p>
+      <footer class="sidebar-foot">
+        <button id="exportBtn" class="ghost">Export backup</button>
+        <label class="ghost file-btn">Import backup
+          <input id="importInput" type="file" accept="application/json" hidden>
+        </label>
+      </footer>
+    </aside>
+
+    <main class="editor" id="editor">
+      <div id="placeholder" class="placeholder">
+        <p>Select an entry or start a new one.</p>
+      </div>
+
+      <form id="entryForm" hidden autocomplete="off">
+        <div class="editor-top">
+          <button type="button" id="backBtn" class="ghost back">← Entries</button>
+          <input id="date" type="date" aria-label="Date">
+          <div class="moods" id="moods" role="radiogroup" aria-label="Mood"></div>
+        </div>
+        <input id="title" class="title" placeholder="Title" aria-label="Title">
+        <textarea id="body" placeholder="Dear diary…" aria-label="Entry"></textarea>
+        <div class="editor-foot">
+          <span id="status" class="muted"></span>
+          <button type="button" id="deleteBtn" class="danger">Delete</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# Never commit diary backups; the repo is public.
+diary-backup-*.json
+
+# Local tooling
+.claude/

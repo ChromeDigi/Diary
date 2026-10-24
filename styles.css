@@ -1,0 +1,172 @@
+:root {
+  --bg: #faf7f2;
+  --panel: #ffffff;
+  --text: #2b2723;
+  --muted: #8a8178;
+  --border: #e8e1d7;
+  --accent: #b5651d;
+  --accent-text: #ffffff;
+  --selected: #f3e9dc;
+  --danger: #b3261e;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1a18;
+    --panel: #252220;
+    --text: #ece6de;
+    --muted: #9b928a;
+    --border: #3a3531;
+    --accent: #e0914a;
+    --accent-text: #1c1a18;
+    --selected: #352f2a;
+    --danger: #ff8a80;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+button, input, textarea { font: inherit; color: inherit; }
+
+button, .file-btn {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.ghost { background: transparent; }
+.danger { background: transparent; color: var(--danger); border-color: transparent; }
+.muted { color: var(--muted); }
+
+.app {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: 100%;
+}
+
+/* Sidebar */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-right: 1px solid var(--border);
+  background: var(--panel);
+  min-height: 0;
+}
+
+.sidebar-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sidebar-head h1 { font-family: var(--serif); font-size: 1.5rem; margin: 0; }
+
+#search {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.entry-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
+
+.entry-list li {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.entry-list li:hover { background: var(--bg); }
+.entry-list li.active { background: var(--selected); }
+
+.entry-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); }
+.entry-title { font-weight: 600; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.entry-snippet { font-size: 0.85rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.empty { text-align: center; margin-top: 24px; }
+
+.sidebar-foot { display: flex; gap: 8px; }
+.sidebar-foot > * { flex: 1; text-align: center; font-size: 0.85rem; }
+
+/* Editor */
+.editor { display: flex; min-height: 0; }
+
+.placeholder {
+  margin: auto;
+  color: var(--muted);
+  font-family: var(--serif);
+  font-size: 1.2rem;
+}
+
+#entryForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.editor-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.editor-top input[type="date"] {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: var(--panel);
+}
+
+.back { display: none; }
+
+.moods { display: flex; gap: 4px; }
+.moods button {
+  font-size: 1.3rem;
+  padding: 4px 6px;
+  border-color: transparent;
+  background: transparent;
+  opacity: 0.45;
+}
+.moods button[aria-checked="true"] { opacity: 1; border-color: var(--accent); }
+
+.title {
+  border: none;
+  background: transparent;
+  font-family: var(--serif);
+  font-size: 2rem;
+  outline: none;
+}
+
+#body {
+  flex: 1;
+  min-height: 300px;
+  resize: none;
+  border: none;
+  background: transparent;
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  outline: none;
+}
+
+.editor-foot { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+
+/* Phone layout: show one pane at a time */
+@media (max-width: 720px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { border-right: none; }
+  .app.editing .sidebar { display: none; }
+  .app:not(.editing) .editor { display: none; }
+  .back { display: inline-block; }
+  #entryForm { padding: 16px; }
+  .title { font-size: 1.6rem; }
+}
