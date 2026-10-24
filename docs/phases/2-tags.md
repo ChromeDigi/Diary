@@ -1,6 +1,6 @@
 # Phase 2: Entry tags
 
-**Status:** Planned (2026-10-23). Chosen by owner over calendar view, passcode lock, sync.
+**Status:** Superseded (2026-10-23): folded into Phase 3 (daily check-in) as theme chips. Spec kept for reference.
 
 ## Goal
 Tag entries (e.g. `work`, `travel`) and filter the list by tag.

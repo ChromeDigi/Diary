@@ -1,14 +1,24 @@
 # Plan
 
+**Purpose:** a weekly update for my therapist, built from quick daily logging, so I
+never start from scratch. It must be fun, low-effort, predictable and motivating
+(autism + ADHD friendly), with graphs, colors and a modern look.
+Build prompts per phase: [prompts.md](prompts.md).
+
 ## Phases
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | [MVP diary app](phases/1-mvp.md) | Done |
-| 2 | [Entry tags](phases/2-tags.md) | Planned |
+| 2 | Visual redesign: colorful, modern, calm mode, mood colors | Next |
+| 3 | Quick daily check-in: 1–5 sliders, theme chips (replaces [tags](phases/2-tags.md)), one-liner | Planned |
+| 4 | Weekly therapist report: SVG charts, mood strip, wins/struggles, print/PDF | Planned |
+| 5 | Bring-to-therapy list, session notes, weekly goal, carry-over | Planned |
+| 6 | Guilt-free motivation: totals not streaks, confetti, badges, daily prompt | Planned |
+| 7 | Optional passcode lock with real encryption | Planned |
+
+Each phase gets `docs/phases/<n>-<name>.md` before it is built.
 
 ## Ideas backlog
-- Passcode lock
-- Sync between devices
-- ~~Entry tags~~ (Phase 2)
-- Calendar view
+- Sync between devices (needs a server; conflicts with local-only model)
+- Calendar view (could join phase 4 as a month mood grid)
