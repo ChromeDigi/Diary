@@ -24,10 +24,11 @@ with no framework, dependencies or build step.
   diaries are never lost.
 - Typing autosaves with a 400 ms debounce (`touch()` → `persist()`).
 - Weekly report notes: `diary.reports.v1` = `{ "<week start>": { wins, struggles, talk,
-  updatedAt } }`; a `null` field stays auto-filled from entries.
-- Backups are JSON `{ format: "my-diary", version: 2, entries, reports }` (old plain
-  arrays still import). Import only adds entries whose `id` is new and report weeks
-  not already present.
+  sessionNotes, goal, updatedAt } }`; a `null` wins/struggles stays auto-filled.
+- Bring-to-therapy items: `diary.talk.v1` = `[{ id, text, addedOn, discussedOn }]`.
+- Backups are JSON `{ format: "my-diary", version: 3, entries, reports, talkItems }`
+  (v2 and old plain arrays still import). Import only adds entries and items whose
+  `id` is new, and report weeks not already present.
 
 ## Running
 

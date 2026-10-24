@@ -1,22 +1,21 @@
 # Handoff
 
-**Goal:** Build the weekly-therapy-update diary, phase by phase. Next: Phase 5, bring-to-therapy list.
+**Goal:** Build the weekly-therapy-update diary, phase by phase. Next: Phase 6, guilt-free motivation.
 
 ## Status
 - Live: https://chromedigi.github.io/Diary/ (repo ChromeDigi/Diary, public; every push to `main` deploys)
-- Done: Phase 1 MVP, 2 3D redesign, 3 daily check-in (storage v2), 4 weekly report.
-  See [plan.md](plan.md) and `phases/`.
+- Done: Phase 1 MVP, 2 3D redesign, 3 daily check-in (storage v2), 4 weekly report,
+  5 bring-to-therapy list + session notes + goal (backup v3). See [plan.md](plan.md) and `phases/`.
 - Prompts for each phase: [prompts.md](prompts.md). Decisions: [decisions.md](decisions.md).
 
 ## Next steps
-1. Run prompt 5 from [prompts.md](prompts.md): write `docs/phases/5-therapy-prep.md` first.
-2. Fit it into the report: "Things I want to talk about" should pull from the new
-   bring-to-therapy list (report notes live in `diary.reports.v1`, see `report.js`).
-3. Items need ids, added/discussed dates; undiscussed items carry over. Include them
-   in backups (backup format v2 in `app.js`; bump the version if the shape changes).
+1. Run prompt 6 from [prompts.md](prompts.md): write `docs/phases/6-motivation.md` first.
+2. Totals, never streak loss; celebrate check-in completion (the "done" badge in
+   `renderCheckin()` in `app.js` is the hook). Everything optional and off in calm mode.
+3. Unlockable themes/badges: store progress in prefs or a new key; keep it out of entries.
 
 ## Key files
-`app.js` (storage, check-in, prefs, backup), `report.js` (weekly report),
+`app.js` (storage, check-in, prefs, backup), `report.js` (weekly report, 💬 list, goal),
 `styles.css` (Aurora glass; print styles at the end), `index.html`, `CLAUDE.md`
 
 ## Open questions

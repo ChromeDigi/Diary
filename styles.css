@@ -486,6 +486,65 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .file-btn:foc
 .note textarea::placeholder { color: var(--muted); }
 .print-text { display: none; }
 
+/* Goal card + open-item count in the sidebar */
+.goal-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  width: 100%; text-align: left; border-radius: 18px; padding: 10px 14px;
+  background: linear-gradient(135deg, color-mix(in srgb, #f2d94e 30%, transparent), color-mix(in srgb, #5dcaa5 22%, transparent));
+}
+.goal-label { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+.goal-text { font-weight: 600; }
+.talk-count { margin: -4px 0 0; font-size: 0.85rem; text-align: center; }
+
+/* Bring-to-therapy list in the report */
+.talk-list { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.talk-list li {
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 14px;
+  background: var(--glass); border: 1px solid var(--glass-border);
+}
+.talk-list li.muted { background: none; border: none; padding: 0; }
+.talk-list input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
+.talk-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.talk-list li.done .talk-text { text-decoration: line-through; color: var(--muted); }
+.talk-remove { padding: 2px 10px; background: transparent; border-color: transparent; color: var(--muted); backdrop-filter: none; }
+.talk-add, .after-session .one-liner { width: 100%; }
+.talk-add {
+  padding: 10px 16px; border-radius: 14px; border: 1px dashed var(--glass-border); background: transparent;
+}
+.talk-add::placeholder { color: var(--muted); }
+.after-session { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+
+/* Floating quick-add button, its box and the toast */
+.fab {
+  position: fixed; right: 20px; bottom: 20px; z-index: 20;
+  width: 58px; height: 58px; padding: 0; font-size: 1.5rem; border: none;
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.9), var(--accent) 45%,
+    color-mix(in srgb, var(--accent), #000 45%));
+  box-shadow: 0 14px 30px -8px color-mix(in srgb, var(--accent) calc(var(--glow) * 160%), var(--shadow)),
+    inset -5px -7px 12px rgba(0, 0, 0, 0.25);
+}
+.fab:hover { transform: translateY(-3px) scale(1.05); }
+.quick-add {
+  position: fixed; right: 20px; bottom: 90px; z-index: 20;
+  width: min(360px, calc(100vw - 32px));
+  display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 20px;
+  background: var(--glass-strong); border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 24px 50px -16px var(--shadow);
+  animation: pop 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
+  font-size: 0.8rem;
+}
+.quick-add input {
+  padding: 10px 14px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--glass); font-size: 1rem;
+}
+.toast {
+  position: fixed; left: 50%; bottom: 28px; z-index: 30; transform: translateX(-50%);
+  padding: 10px 18px; border-radius: 999px; font-weight: 600;
+  background: var(--accent); color: var(--accent-text);
+  box-shadow: 0 12px 30px -10px var(--shadow);
+  animation: pop 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
 /* Calm mode and reduced motion: no movement */
 :root.calm *, :root.calm *::before, :root.calm *::after {
   animation: none !important;
@@ -527,6 +586,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .file-btn:foc
   .strip { gap: 4px; }
   .strip .block { height: 48px; border-radius: 12px; }
   .day-mood { font-size: 0.65rem; }
+  .fab { right: 14px; bottom: 14px; width: 52px; height: 52px; }
+  .quick-add { right: 16px; bottom: 76px; }
+  .report, #entryForm { padding-bottom: 72px; }
+  .sidebar { padding-bottom: 76px; }
 }
 
 /* Print / save as PDF: the report on a clean white page */
@@ -549,7 +612,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .file-btn:foc
   }
   html, body { height: auto; background: #fff !important; filter: none !important; }
   .aurora, .sidebar, .report-actions, .week-nav button, .back, #refillBtn, #legend,
-  .note textarea, #entryForm, .placeholder { display: none !important; }
+  .note textarea, #entryForm, .placeholder, .fab, .quick-add, .toast, .talk-add,
+  .talk-remove, #goalInput { display: none !important; }
   .app { display: block; height: auto; padding: 0; }
   .editor { display: block !important; }
   .report { overflow: visible; max-width: none; padding: 0; }

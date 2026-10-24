@@ -21,7 +21,12 @@
         <button id="checkinBtn" class="primary">+ Check in</button>
         <button id="newBtn" class="ghost">New entry</button>
       </div>
+      <button id="goalCard" class="goal-card" hidden>
+        <span class="goal-label">🎯 This week's goal</span>
+        <span id="goalText" class="goal-text"></span>
+      </button>
       <button id="reportBtn" class="report-link">📊 This week's report</button>
+      <p id="talkCount" class="talk-count muted" hidden></p>
       <input id="search" type="search" placeholder="Search entries…" aria-label="Search entries">
       <ul id="entryList" class="entry-list"></ul>
       <p id="emptyList" class="muted empty" hidden>No entries yet. Write your first one!</p>
@@ -101,6 +106,11 @@
             <h3>Highlights</h3>
             <ul id="highlights" class="highlights"></ul>
           </div>
+          <div class="rcard wide">
+            <h3>💬 Bring to therapy</h3>
+            <ul id="talkList" class="talk-list"></ul>
+            <input id="talkAdd" class="talk-add" placeholder="+ Add something to bring up" aria-label="Add something to bring up" maxlength="200">
+          </div>
           <div class="rcard wide notes">
             <div class="notes-head">
               <h3>Notes for therapy</h3>
@@ -108,10 +118,30 @@
             </div>
             <div id="notes"></div>
           </div>
+          <div class="rcard wide">
+            <h3>After the session</h3>
+            <div class="after-session">
+              <label class="note"><span class="note-label">Session notes</span>
+                <textarea id="sessionNotes" placeholder="What we talked about, what to try"></textarea>
+                <div class="print-text" id="sessionNotesPrint"></div>
+              </label>
+              <label class="note"><span class="note-label">🎯 Goal for next week</span>
+                <input id="goalInput" class="one-liner" placeholder="One small thing to try" maxlength="140">
+                <div class="print-text" id="goalPrint"></div>
+              </label>
+            </div>
+          </div>
         </div>
       </section>
     </main>
   </div>
+
+  <button id="fab" class="fab" aria-label="Add something to bring to therapy" title="Bring to therapy">💬</button>
+  <div id="quickAdd" class="quick-add" hidden>
+    <input id="quickInput" placeholder="Bring to therapy…" aria-label="Bring to therapy" maxlength="200">
+    <span class="muted">Enter to add · Esc to close</span>
+  </div>
+  <div id="toast" class="toast" role="status" hidden></div>
 
   <script src="app.js"></script>
   <script src="report.js"></script>

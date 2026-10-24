@@ -13,8 +13,8 @@ Build prompts per phase: [prompts.md](prompts.md).
 | 2 | [3D visual redesign](phases/2-redesign.md) | Done |
 | 3 | [Quick daily check-in](phases/3-checkin.md): 1–5 tap scales, theme chips, one-liner | Done |
 | 4 | [Weekly therapist report](phases/4-report.md): SVG charts, mood strip, notes, print/PDF | Done |
-| 5 | Bring-to-therapy list, session notes, weekly goal, carry-over | Next |
-| 6 | Guilt-free motivation: totals not streaks, confetti, badges, daily prompt | Planned |
+| 5 | [Bring-to-therapy list](phases/5-therapy-prep.md), session notes, weekly goal, carry-over | Done |
+| 6 | Guilt-free motivation: totals not streaks, confetti, badges, daily prompt | Next |
 | 7 | Optional passcode lock with real encryption | Planned |
 
 Each phase gets `docs/phases/<n>-<name>.md` before it is built.

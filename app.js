@@ -4,6 +4,8 @@ const STORAGE_KEY = 'diary.entries.v2';
 const OLD_KEY = 'diary.entries.v1'; // read once for migration, never written or deleted
 const PREFS_KEY = 'diary.prefs.v1';
 const REPORTS_KEY = 'diary.reports.v1'; // weekly report notes, keyed by week start date
+const TALK_KEY = 'diary.talk.v1'; // bring-to-therapy items
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 // Mood is 1–5, shown as orbs. Index 0 = score 1.
 const MOODS = [
@@ -33,6 +35,7 @@ const fields = { date: $('date'), title: $('title'), body: $('body'), oneLiner: 
 
 let entries = load();
 let reports = loadReports();
+let talkItems = loadTalk();
 let currentId = null;
 let saveTimer = null;
 
@@ -104,7 +107,32 @@ function persistReports() {
 // Keeps only well-formed report notes from a backup.
 function cleanReport(r) {
   const text = (v) => (typeof v === 'string' ? v : null);
-  return { wins: text(r.wins), struggles: text(r.struggles), talk: text(r.talk), updatedAt: Number(r.updatedAt) || Date.now() };
+  return {
+    wins: text(r.wins), struggles: text(r.struggles), talk: text(r.talk),
+    sessionNotes: text(r.sessionNotes), goal: text(r.goal),
+    updatedAt: Number(r.updatedAt) || Date.now(),
+  };
+}
+
+function cleanTalk(t) {
+  if (!t || !t.id || typeof t.text !== 'string' || !t.text.trim()) return null;
+  return {
+    id: String(t.id),
+    text: t.text.trim().slice(0, 200),
+    addedOn: ISO_DATE.test(t.addedOn) ? t.addedOn : today(),
+    discussedOn: ISO_DATE.test(t.discussedOn) ? t.discussedOn : null,
+  };
+}
+
+function loadTalk() {
+  const list = readList(TALK_KEY);
+  return list ? list.map(cleanTalk).filter(Boolean) : [];
+}
+
+function persistTalk() {
+  try {
+    localStorage.setItem(TALK_KEY, JSON.stringify(talkItems));
+  } catch { /* the list stays on screen; next change retries */ }
 }
 
 function persist() {
@@ -339,7 +367,7 @@ function deleteEntry() {
 }
 
 function exportBackup() {
-  const backup = { format: 'my-diary', version: 2, entries, reports };
+  const backup = { format: 'my-diary', version: 3, entries, reports, talkItems };
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -348,8 +376,8 @@ function exportBackup() {
   URL.revokeObjectURL(a.href);
 }
 
-// Accepts old plain-array backups and v2 backups with reports. Only adds entries
-// whose id is new, and report notes for weeks not already present.
+// Accepts old plain-array backups and v2/v3 backups. Only adds entries and
+// bring-to-therapy items whose id is new, and report notes for weeks not yet present.
 async function importBackup(file) {
   try {
     const data = JSON.parse(await file.text());
@@ -363,16 +391,27 @@ async function importBackup(file) {
     let weeks = 0;
     const incoming = data?.reports && typeof data.reports === 'object' ? data.reports : {};
     for (const [week, r] of Object.entries(incoming)) {
-      if (/^\d{4}-\d{2}-\d{2}$/.test(week) && r && typeof r === 'object' && !reports[week]) {
+      if (ISO_DATE.test(week) && r && typeof r === 'object' && !reports[week]) {
         reports[week] = cleanReport(r);
         weeks++;
       }
     }
     if (weeks) persistReports();
 
+    const knownTalk = new Set(talkItems.map((t) => t.id));
+    const newTalk = (Array.isArray(data?.talkItems) ? data.talkItems : [])
+      .map(cleanTalk).filter((t) => t && !knownTalk.has(t.id));
+    talkItems.push(...newTalk);
+    if (newTalk.length) persistTalk();
+
     renderList();
+    document.dispatchEvent(new Event('diary:imported'));
+    const extras = [
+      weeks ? `${weeks} week${weeks === 1 ? '' : 's'} of report notes` : '',
+      newTalk.length ? `${newTalk.length} bring-to-therapy item${newTalk.length === 1 ? '' : 's'}` : '',
+    ].filter(Boolean);
     alert(`Imported ${added.length} new entr${added.length === 1 ? 'y' : 'ies'}`
-      + (weeks ? ` and ${weeks} week${weeks === 1 ? '' : 's'} of report notes.` : '.'));
+      + (extras.length ? `, ${extras.join(' and ')}.` : '.'));
   } catch {
     alert('That file is not a valid diary backup.');
   }

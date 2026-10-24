@@ -7,11 +7,12 @@ const METRICS = [
   { key: 'sleep', label: 'Sleep', color: '#b18cff', goodHigh: true },
 ];
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+// Auto-filled notes. The older free-text `talk` note only shows if it has text.
 const NOTE_FIELDS = [
   { key: 'wins', label: 'Wins', placeholder: 'What went well this week?' },
   { key: 'struggles', label: 'Struggles', placeholder: 'What was hard?' },
-  { key: 'talk', label: 'Things I want to talk about', placeholder: 'Anything to bring up in the session' },
 ];
+const EXTRA_NOTE = { key: 'talk', label: 'Extra notes', placeholder: 'Anything else' };
 
 const reportEl = $('report');
 const hiddenLines = new Set();
@@ -249,9 +250,17 @@ function autoNote(week, key) {
   return lines.join('\n');
 }
 
+// Saves one field of a week's report notes (debounced).
+function saveReportField(start, key, value) {
+  reports[start] = { ...cleanReport(reports[start] || {}), [key]: value, updatedAt: Date.now() };
+  clearTimeout(notesTimer);
+  notesTimer = setTimeout(persistReports, 400);
+}
+
 function renderNotes(week) {
   const saved = reports[week.start] || {};
-  $('notes').replaceChildren(...NOTE_FIELDS.map((f) => {
+  const fields = saved.talk ? [...NOTE_FIELDS, EXTRA_NOTE] : NOTE_FIELDS;
+  $('notes').replaceChildren(...fields.map((f) => {
     const wrap = el('label', 'note');
     const value = saved[f.key] == null ? autoNote(week, f.key) : saved[f.key];
     const area = el('textarea');
@@ -262,13 +271,94 @@ function renderNotes(week) {
     area.addEventListener('input', () => {
       area.dataset.auto = 'false';
       printText.textContent = area.value || '—';
-      reports[week.start] = { ...cleanReport(reports[week.start] || {}), [f.key]: area.value, updatedAt: Date.now() };
-      clearTimeout(notesTimer);
-      notesTimer = setTimeout(persistReports, 400);
+      saveReportField(week.start, f.key, area.value);
     });
     wrap.append(el('span', 'note-label', f.label), area, printText);
     return wrap;
   }));
+}
+
+// ---------- Bring-to-therapy list ----------
+
+function addTalk(text) {
+  const t = cleanTalk({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), text, addedOn: today() });
+  if (!t) return false;
+  talkItems.push(t);
+  persistTalk();
+  renderHome();
+  if (!reportEl.hidden) renderTalk(shownWeekStart());
+  return true;
+}
+
+// Items still open at some point that week: added by its end, not discussed before it.
+function renderTalk(start) {
+  const end = addDays(start, 6);
+  const shown = talkItems
+    .filter((t) => t.addedOn <= end && (!t.discussedOn || t.discussedOn >= start))
+    .map((t) => ({ t, done: !!t.discussedOn && t.discussedOn <= end }))
+    .sort((a, b) => a.done - b.done || a.t.addedOn.localeCompare(b.t.addedOn));
+
+  const items = shown.map(({ t, done }) => {
+    const li = el('li', done ? 'done' : '');
+    const box = el('input');
+    box.type = 'checkbox';
+    box.checked = done;
+    box.setAttribute('aria-label', `Discussed: ${t.text}`);
+    box.addEventListener('change', () => {
+      t.discussedOn = box.checked ? (today() <= end ? today() : end) : null;
+      persistTalk();
+      renderTalk(start);
+      renderHome();
+    });
+    const text = el('span', 'talk-text', t.text);
+    li.append(box, text);
+    if (t.addedOn < start) li.append(el('span', 'mini-chip', 'carried over'));
+    const remove = el('button', 'talk-remove', '×');
+    remove.type = 'button';
+    remove.setAttribute('aria-label', `Remove: ${t.text}`);
+    remove.addEventListener('click', () => {
+      talkItems = talkItems.filter((x) => x !== t);
+      persistTalk();
+      renderTalk(start);
+      renderHome();
+    });
+    li.append(remove);
+    return li;
+  });
+  $('talkList').replaceChildren(...(items.length ? items
+    : [el('li', 'muted', 'Nothing yet. Tap 💬 anytime to add something.')]));
+}
+
+function renderAfterSession(start) {
+  const saved = reports[start] || {};
+  $('sessionNotes').value = saved.sessionNotes || '';
+  $('sessionNotesPrint').textContent = saved.sessionNotes || '—';
+  $('goalInput').value = saved.goal || '';
+  $('goalPrint').textContent = saved.goal || '—';
+}
+
+// Sidebar: latest goal (this week's, else the most recent earlier one) and open item count.
+function renderHome() {
+  const thisWeek = startOfWeek(today());
+  const week = Object.keys(reports).filter((w) => w <= thisWeek && reports[w].goal && reports[w].goal.trim()).sort().pop();
+  $('goalCard').hidden = !week;
+  $('goalText').textContent = week ? reports[week].goal : '';
+  const open = talkItems.filter((t) => !t.discussedOn).length;
+  $('talkCount').hidden = open === 0;
+  $('talkCount').textContent = `💬 ${open} thing${open === 1 ? '' : 's'} to bring up`;
+}
+
+function showToast(text) {
+  const t = $('toast');
+  t.textContent = text;
+  t.hidden = false;
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => { t.hidden = true; }, 1800);
+}
+
+function toggleQuickAdd(open) {
+  $('quickAdd').hidden = !open;
+  if (open) $('quickInput').focus();
 }
 
 function renderReport() {
@@ -282,7 +372,9 @@ function renderReport() {
   renderStrip(week);
   renderThemes(week);
   renderHighlights(week);
+  renderTalk(start);
   renderNotes(week);
+  renderAfterSession(start);
 }
 
 // ---------- Open / close ----------
@@ -304,9 +396,11 @@ function refillNotes() {
   const start = shownWeekStart();
   const saved = reports[start];
   const edited = saved && NOTE_FIELDS.some((f) => saved[f.key] != null);
-  if (edited && !confirm('Replace your notes with suggestions from this week\'s entries?')) return;
-  delete reports[start];
-  persistReports();
+  if (edited && !confirm('Replace your wins and struggles with suggestions from this week\'s entries?')) return;
+  if (saved) {
+    NOTE_FIELDS.forEach((f) => { saved[f.key] = null; });
+    persistReports();
+  }
   renderNotes(weekData(start));
 }
 
@@ -330,6 +424,40 @@ $('nextWeek').addEventListener('click', () => { weekOffset++; renderReport(); })
 $('thisWeekBtn').addEventListener('click', () => { weekOffset = 0; renderReport(); });
 $('refillBtn').addEventListener('click', refillNotes);
 $('printBtn').addEventListener('click', () => window.print());
+
+$('talkAdd').addEventListener('keydown', (ev) => {
+  if (ev.key !== 'Enter') return;
+  if (addTalk(ev.target.value)) { ev.target.value = ''; showToast('Added'); }
+});
+$('sessionNotes').addEventListener('input', (ev) => {
+  $('sessionNotesPrint').textContent = ev.target.value || '—';
+  saveReportField(shownWeekStart(), 'sessionNotes', ev.target.value);
+});
+$('goalInput').addEventListener('input', (ev) => {
+  $('goalPrint').textContent = ev.target.value || '—';
+  saveReportField(shownWeekStart(), 'goal', ev.target.value);
+  renderHome();
+});
+$('goalCard').addEventListener('click', () => { weekOffset = 0; openReport(); });
+
+$('fab').addEventListener('click', (ev) => { ev.stopPropagation(); toggleQuickAdd($('quickAdd').hidden); });
+$('quickInput').addEventListener('keydown', (ev) => {
+  if (ev.key === 'Escape') toggleQuickAdd(false);
+  if (ev.key !== 'Enter') return;
+  if (addTalk(ev.target.value)) {
+    ev.target.value = '';
+    toggleQuickAdd(false);
+    showToast('Added to your therapy list 💬');
+  }
+});
+document.addEventListener('click', (ev) => {
+  if (!$('quickAdd').hidden && !ev.target.closest('#quickAdd, #fab')) toggleQuickAdd(false);
+});
+document.addEventListener('diary:imported', () => {
+  renderHome();
+  if (!reportEl.hidden) renderReport();
+});
+renderHome();
 
 let resizeTimer = null;
 window.addEventListener('resize', () => {
