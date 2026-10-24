@@ -27,6 +27,7 @@
       </button>
       <button id="reportBtn" class="report-link">📊 This week's report</button>
       <p id="talkCount" class="talk-count muted" hidden></p>
+      <button id="rewardsBtn" class="rewards-link"></button>
       <input id="search" type="search" placeholder="Search entries…" aria-label="Search entries">
       <ul id="entryList" class="entry-list"></ul>
       <p id="emptyList" class="muted empty" hidden>No entries yet. Write your first one!</p>
@@ -58,6 +59,14 @@
           <div class="themes" id="themes"></div>
           <input id="oneLiner" class="one-liner" placeholder="Biggest thing today" aria-label="Biggest thing today" maxlength="140">
         </section>
+        <div class="daily-prompt" id="dailyPrompt">
+          <span class="prompt-label">💡 Today's prompt</span>
+          <span id="promptText" class="prompt-text"></span>
+          <div class="prompt-actions">
+            <button type="button" id="promptUse" class="ghost">Use it</button>
+            <button type="button" id="promptShuffle" class="ghost" aria-label="Show another prompt">🔀 Shuffle</button>
+          </div>
+        </div>
         <input id="title" class="title" placeholder="Title" aria-label="Title">
         <textarea id="body" placeholder="Dear diary…" aria-label="Entry"></textarea>
         <div class="editor-foot">
@@ -133,6 +142,26 @@
           </div>
         </div>
       </section>
+
+      <section id="rewards" class="report" hidden aria-label="Rewards">
+        <div class="report-top">
+          <button type="button" id="rewardsBack" class="ghost back">← Entries</button>
+          <div>
+            <h2 class="rewards-title">⭐ Your rewards</h2>
+            <span class="muted">Every check-in counts. Missed days never do.</span>
+          </div>
+          <label class="fun-toggle"><input type="checkbox" id="funToggle"> Celebrations</label>
+        </div>
+        <div id="rewardTiles" class="tiles"></div>
+        <div class="rcard">
+          <h3>Badges</h3>
+          <div id="badges" class="badges"></div>
+        </div>
+        <div class="rcard">
+          <h3>Color palettes</h3>
+          <div id="palettes" class="palettes"></div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -145,5 +174,6 @@
 
   <script src="app.js"></script>
   <script src="report.js"></script>
+  <script src="rewards.js"></script>
 </body>
 </html>

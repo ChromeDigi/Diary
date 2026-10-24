@@ -1,21 +1,22 @@
 # Handoff
 
-**Goal:** Build the weekly-therapy-update diary, phase by phase. Next: Phase 6, guilt-free motivation.
+**Goal:** Build the weekly-therapy-update diary, phase by phase. Next: Phase 7 (optional), passcode lock.
 
 ## Status
 - Live: https://chromedigi.github.io/Diary/ (repo ChromeDigi/Diary, public; every push to `main` deploys)
 - Done: Phase 1 MVP, 2 3D redesign, 3 daily check-in (storage v2), 4 weekly report,
-  5 bring-to-therapy list + session notes + goal (backup v3). See [plan.md](plan.md) and `phases/`.
+  5 bring-to-therapy list + session notes + goal (backup v3), 6 guilt-free rewards
+  (`rewards.js`). See [plan.md](plan.md) and `phases/`.
 - Prompts for each phase: [prompts.md](prompts.md). Decisions: [decisions.md](decisions.md).
 
 ## Next steps
-1. Run prompt 6 from [prompts.md](prompts.md): write `docs/phases/6-motivation.md` first.
-2. Totals, never streak loss; celebrate check-in completion (the "done" badge in
-   `renderCheckin()` in `app.js` is the hook). Everything optional and off in calm mode.
-3. Unlockable themes/badges: store progress in prefs or a new key; keep it out of entries.
+1. Run prompt 7 from [prompts.md](prompts.md): write `docs/phases/7-passcode.md` first.
+2. Real encryption (Web Crypto: PBKDF2 → AES-GCM) of all `diary.*` data keys, not a
+   cosmetic lock. Clear "forgotten passcode = lost data" warning; push export first.
+3. Migration: encrypting existing data must be reversible (turn lock off → decrypt).
 
 ## Key files
-`app.js` (storage, check-in, prefs, backup), `report.js` (weekly report, 💬 list, goal),
+`app.js` (storage, check-in, prefs, backup), `report.js` (weekly report, 💬 list, goal), `rewards.js`,
 `styles.css` (Aurora glass; print styles at the end), `index.html`, `CLAUDE.md`
 
 ## Open questions

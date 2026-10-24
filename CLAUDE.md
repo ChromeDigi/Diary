@@ -12,7 +12,11 @@ with no framework, dependencies or build step.
   `prefers-color-scheme: dark` (or `data-theme`); phone layout at `max-width: 720px`;
   print styles for the report at the end
 - `app.js`: core logic (storage, check-in, rendering, autosave, search, export/import, prefs)
-- `report.js`: weekly report (loaded after `app.js`, uses its globals; SVG charts)
+- `report.js`: weekly report, 💬 bring-to-therapy list, goal (loaded after `app.js`,
+  uses its globals; SVG charts)
+- `rewards.js`: totals, badges, palettes, confetti, daily prompt (loaded last; all
+  derived from existing data). `app.js` fires `diary:changed`, `diary:checkin-done`,
+  `diary:entry-opened`, `diary:imported` events that these files listen to.
 
 ## How it works
 

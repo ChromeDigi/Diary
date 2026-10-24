@@ -13,3 +13,4 @@
 - **Check-in = tap scales 1–5 + mood as 1–5 orbs** (owner, 2026-10-23). Skippable ratings keep weekly charts honest; numbers feed Phase 4. Storage → `diary.entries.v2`, v1 kept.
 - **Report notes in `diary.reports.v1`, backup format v2 with reports** (2026-10-23). Notes auto-fill until edited, so the weekly update never starts from scratch. Report code in `report.js` to keep `app.js` readable.
 - **Bring-to-therapy items in `diary.talk.v1`; session notes + goal stored with the week in `diary.reports.v1`; backup v3** (2026-10-23). A floating 💬 button makes adding one tap from anywhere.
+- **Rewards are derived, never stored** (2026-10-23): totals/badges come from entries, reports and the talk list, so nothing can get out of sync. Only `prefs.palette` and `prefs.fun` are saved. No streaks, by design.

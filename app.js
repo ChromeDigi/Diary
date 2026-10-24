@@ -102,6 +102,7 @@ function persistReports() {
   try {
     localStorage.setItem(REPORTS_KEY, JSON.stringify(reports));
   } catch { /* the notes stay on screen; next edit retries */ }
+  document.dispatchEvent(new Event('diary:changed'));
 }
 
 // Keeps only well-formed report notes from a backup.
@@ -133,12 +134,14 @@ function persistTalk() {
   try {
     localStorage.setItem(TALK_KEY, JSON.stringify(talkItems));
   } catch { /* the list stays on screen; next change retries */ }
+  document.dispatchEvent(new Event('diary:changed'));
 }
 
 function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
     setStatus('Saved');
+    document.dispatchEvent(new Event('diary:changed'));
   } catch {
     setStatus('Could not save. Export a backup!');
   }
@@ -277,7 +280,7 @@ function renderCheckin() {
   });
   $('themes').replaceChildren(...chips, add);
 
-  $('doneBadge').hidden = !(e.mood && e.energy && e.anxiety && e.sleep);
+  $('doneBadge').hidden = !isComplete(e);
 }
 
 // ---------- Actions ----------
@@ -286,11 +289,23 @@ function current() {
   return entries.find((e) => e.id === currentId);
 }
 
+function isComplete(e) {
+  return !!(e.mood && e.energy && e.anxiety && e.sleep);
+}
+
 function rate(key, value) {
   const e = current();
+  const wasComplete = isComplete(e);
   e[key] = e[key] === value ? null : value;
   renderCheckin();
   touch();
+  if (!wasComplete && isComplete(e)) document.dispatchEvent(new Event('diary:checkin-done'));
+}
+
+// The main pane shows one of: editor, report, rewards.
+function hideViews() {
+  $('report').hidden = true;
+  $('rewards').hidden = true;
 }
 
 function toggleTheme(t, refocus) {
@@ -308,7 +323,7 @@ function openEntry(id) {
   fields.title.value = e.title;
   fields.body.value = e.body;
   fields.oneLiner.value = e.oneLiner;
-  $('report').hidden = true;
+  hideViews();
   renderCheckin();
   form.hidden = false;
   form.classList.remove('swing');
@@ -318,6 +333,7 @@ function openEntry(id) {
   app.classList.add('editing');
   setStatus(new Date(e.updatedAt).toLocaleString());
   renderList();
+  document.dispatchEvent(new Event('diary:entry-opened'));
 }
 
 function newEntry() {
@@ -338,7 +354,7 @@ function checkIn() {
 function closeEditor() {
   currentId = null;
   form.hidden = true;
-  $('report').hidden = true;
+  hideViews();
   $('placeholder').hidden = false;
   app.classList.remove('editing');
   renderList();
@@ -437,6 +453,8 @@ function applyPrefs() {
   const root = document.documentElement;
   if (prefs.theme) root.dataset.theme = prefs.theme;
   root.classList.toggle('calm', !!prefs.calm);
+  if (prefs.palette && prefs.palette !== 'aurora') root.dataset.palette = prefs.palette;
+  else delete root.dataset.palette;
   $('themeBtn').textContent = isDark() ? '☀️' : '🌌';
   $('themeBtn').title = isDark() ? 'Light theme' : 'Dark theme';
   $('calmBtn').setAttribute('aria-pressed', String(!!prefs.calm));

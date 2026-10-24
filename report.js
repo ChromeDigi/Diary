@@ -383,6 +383,7 @@ function openReport() {
   currentId = null;
   form.hidden = true;
   $('placeholder').hidden = true;
+  hideViews();
   reportEl.hidden = false;
   reportEl.classList.remove('swing');
   void reportEl.offsetWidth; // restart the swing-in animation

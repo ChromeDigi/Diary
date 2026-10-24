@@ -545,6 +545,83 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .file-btn:foc
   animation: pop 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
 
+/* Rewards */
+.rewards-link {
+  width: 100%; font-weight: 600;
+  background: linear-gradient(90deg, color-mix(in srgb, #f2d94e 30%, transparent), color-mix(in srgb, #b18cff 25%, transparent));
+}
+.rewards-title { margin: 0; font-size: 1.35rem; }
+.fun-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; }
+.fun-toggle input { width: 20px; height: 20px; accent-color: var(--accent); }
+
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; perspective: 800px; }
+.badge {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
+  padding: 14px 8px; border-radius: 18px; background: var(--glass); border: 1px solid var(--glass-border);
+  opacity: 0.55; filter: grayscale(1);
+}
+.badge.got { opacity: 1; filter: none; }
+.coin {
+  width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; font-size: 1.6rem;
+  background: radial-gradient(circle at 32% 28%, #fff8d6, #f2c94e 45%, #a8741a);
+  box-shadow: 0 10px 22px -8px rgba(242, 201, 78, calc(var(--glow) * 1.6)), inset -4px -6px 10px rgba(0, 0, 0, 0.25);
+}
+.badge.got .coin { animation: spin-in 0.8s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+.badge.got:hover .coin { transform: rotateY(25deg) translateZ(10px); }
+@keyframes spin-in { from { transform: rotateY(-180deg) scale(0.6); } }
+.badge-name { font-weight: 600; font-size: 0.85rem; }
+.badge-hint { font-size: 0.72rem; color: var(--muted); }
+
+.palettes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.palette {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left;
+  border-radius: 18px; padding: 10px;
+}
+.palette[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.palette:disabled { cursor: not-allowed; opacity: 0.5; }
+.swatch { width: 100%; height: 44px; border-radius: 12px; display: block; }
+.palette-name { font-weight: 600; }
+.palette .muted { font-size: 0.75rem; }
+
+/* Unlockable palettes: override accent + glow colors */
+:root[data-palette="sunset"] { --accent: #ff7a59; --accent-text: #2a0f05; --blob1: #ff7a59; --blob2: #f2b84e; --blob3: #d4537e; }
+:root[data-palette="ocean"] { --accent: #2f9be0; --accent-text: #021c30; --blob1: #2f7fe0; --blob2: #1fc2c2; --blob3: #7f9cff; }
+:root[data-palette="forest"] { --accent: #3fae68; --accent-text: #04230f; --blob1: #3c9d5d; --blob2: #a8d672; --blob3: #1d9e9a; }
+:root[data-palette="galaxy"] { --accent: #b06bff; --accent-text: #1a0533; --blob1: #9b4dff; --blob2: #ff5ca8; --blob3: #3b2fb0; }
+
+/* Daily prompt card */
+.daily-prompt {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px;
+  padding: 10px 14px; border-radius: 16px;
+  background: color-mix(in srgb, #f2d94e 12%, var(--glass)); border: 1px dashed var(--glass-border);
+}
+.prompt-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+.prompt-text { flex: 1 1 220px; font-family: var(--serif); font-size: 1.02rem; }
+.prompt-actions { display: flex; gap: 6px; }
+.prompt-actions button { padding: 5px 12px; font-size: 0.8rem; }
+
+/* Confetti + sticker */
+.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 40; overflow: hidden; }
+.confetti i {
+  position: absolute; top: -12px; left: var(--x); width: 10px; height: 14px; border-radius: 3px;
+  animation: fall 2.2s cubic-bezier(0.2, 0.6, 0.4, 1) var(--delay) both;
+}
+@keyframes fall {
+  to { transform: translate(var(--drift), 105vh) rotate(var(--spin)); opacity: 0.2; }
+}
+.sticker {
+  position: absolute; left: 50%; top: 40%; font-size: 5rem;
+  transform: translate(-50%, -50%);
+  animation: sticker 1.6s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.3));
+}
+@keyframes sticker {
+  0% { transform: translate(-50%, -50%) scale(0) rotate(-30deg); }
+  30% { transform: translate(-50%, -50%) scale(1.2) rotate(8deg); }
+  70% { transform: translate(-50%, -50%) scale(1) rotate(0); opacity: 1; }
+  100% { transform: translate(-50%, -80%) scale(0.9); opacity: 0; }
+}
+
 /* Calm mode and reduced motion: no movement */
 :root.calm *, :root.calm *::before, :root.calm *::after {
   animation: none !important;
