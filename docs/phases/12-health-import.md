@@ -82,5 +82,33 @@ EVENT|2026-10-24T09:00|2026-10-24T10:00|Team meeting
 - Paste box: empty/useless text refused with a message, valid text imported; "Last import" shown
 - Phone 375px: no horizontal scroll; no console errors
 
+## Real iPhone (2026-10-24/25)
+- Part A (sleep) built and run on the owner's iPhone: 8 nights imported via the link.
+  Differences from the plan are fixed in the guides: type is "Sleep"; 7 days; Repeat Item's
+  default is Value; Combine Text auto-fills Repeat Results; iOS needs
+  Settings → Apps → Shortcuts → Advanced → **Allow Sharing Large Amounts of Data**.
+- Found: the owner uses the **Home Screen app**, whose storage is separate from Safari, so
+  the link import landed in Safari's copy.
+
+## 12b: Clipboard handoff for the Home Screen app (owner choice, 2026-10-25)
+- Shortcut ends with *Combine Text → Copy to Clipboard* (no URL step).
+- Check-in "Last night" row: **📲 Get Health data** = `shortcuts://run-shortcut?name=<name>`
+  (name in `prefs.shortcutName`, default "Diary Check In", editable on the 📲 page) and
+  **📋 Paste**.
+- Starting it stores `prefs.healthAskedAt`; for 30 min, whenever the diary is visible and
+  unlocked, a top bar offers **📋 Paste Health data** (survives iOS reloading the app).
+- Paste = `navigator.clipboard.readText()` (iOS shows its "Paste" bubble) → same import as
+  the link → clipboard cleared. Text with no recognised lines is refused and the bar stays;
+  a blocked clipboard opens the 📲 page with the paste box focused.
+- `#health=` link route stays for Safari users.
+- Verified (Chromium, iPhone 13 emulation, http://localhost): run link href, bar after
+  starting, junk refused, sleep + steps imported and toast shown, clipboard emptied, bar
+  gone after import, bar back after a reload within 30 min, ✕ dismisses, name change
+  updates the link, blocked clipboard falls back to the paste box, no horizontal scroll,
+  no console errors.
+
 ## Not verified
-- The Shortcut on a real iPhone (action names, sleep "Value" wording, Group By Day, Workouts type, URL length); Sleep Score access
+- On the iPhone: a Home Screen app opening `shortcuts://` (and whether iOS asks each time),
+  the "◀ Diary" back button after the shortcut, clipboard paste prompt in the Home Screen app
+- Parts B–D of the Shortcut (activity, workouts, calendar) on a real iPhone
+- Group By Day, Workouts type, Sleep Score access

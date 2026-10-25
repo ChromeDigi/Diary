@@ -1,6 +1,6 @@
 # Handoff
 
-**Goal:** Turn the app's report into the Therapy Homework Brief ([brief-format.md](brief-format.md)). Phases 9–12 done (brief data, Brief view, .docx, iPhone Health + calendar import). Next: owner builds the Shortcut ([iphone-shortcut.md](iphone-shortcut.md)); then Phase 13, day types + look-ahead + activity in the brief.
+**Goal:** Turn the app's report into the Therapy Homework Brief ([brief-format.md](brief-format.md)). Phases 9–12 done (brief data, Brief view, .docx, iPhone Health + calendar import). Shortcut part A (sleep) works on the owner's iPhone. Owner uses the Home Screen app, so data now arrives by clipboard (12b, [phase 12](phases/12-health-import.md)). Next: owner switches the Shortcut ending to Copy to Clipboard and tests 📲/📋, then adds activity + calendar (parts B–D); then Phase 13.
 
 ## Status
 - Live: https://chromedigi.github.io/Diary/ (repo ChromeDigi/Diary, public; every push to `main` deploys)

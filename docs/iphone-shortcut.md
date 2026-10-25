@@ -56,20 +56,32 @@ hold it, then drag it up between *Repeat with Each* and *End Repeat*.
    (or type `busy` instead of the title to keep meeting names private)
    → *Add to Variable* **Lines**. End Repeat.
 
-**E. Send it to the diary**
-Put these after the last *End Repeat* (not inside it).
+**E. Send it to the diary.** Put these after the last *End Repeat* (not inside it).
+Pick the ending that matches where you use the diary.
+
+*Diary on the Home Screen (recommended).* A Home Screen web app has its own storage,
+separate from Safari, so a link would land in Safari's copy. Hand it over by clipboard:
 1. ✔ *Combine Text*: it fills in **Repeat Results** by itself. Tap it → **Clear Variable**,
    tap the empty field → **Lines** from the bar above the keyboard. Then: with **New Lines**.
+2. *Copy to Clipboard* (input: Combined Text).
+3. In the diary's check-in tap **📲 Get Health data** (it starts the shortcut by name;
+   the name is set on the diary's 📲 page, default "Diary Check In"). When the shortcut
+   finishes, go back to the diary (top-left "◀" or the app switcher) and tap
+   **📋 Paste Health data**, then iPhone's **Paste**. The diary clears the clipboard after.
+
+*Diary in Safari.* One tap, but Safari can clear a site's data after 7 days of Safari use
+without visiting it, so the Home Screen app is safer for a diary.
+1. ✔ *Combine Text* as above.
 2. ✔ *URL Encode* the Combined Text.
 3. ✔ *Text*: `https://chromedigi.github.io/Diary/#health=` *URL Encoded Text* (no space between).
 4. ✔ *Open URLs* (shows "Open Text").
 5. ✔ Tap ▶ to test. It works when the diary shows "Imported N nights of sleep".
 
-Then: shortcut **⋯ → Add to Home Screen**. Tap it each morning.
+Safari route: shortcut **⋯ → Add to Home Screen** and tap it each morning.
 
 ## What the diary does with it
-The part after `#` stays on your phone (browsers never send it to a server). The diary
-saves it, clears it from the address bar and opens today's check-in.
+Clipboard or link, the text never leaves the phone (the part after `#` is never sent to a
+server). The diary saves it, clears the address bar or clipboard and opens today's check-in.
 - Sleep: fills last night (bedtime, wake, asleep, awake). Nights you typed or edited keep
   your values. Sleep Score isn't imported; type it if you want it.
 - Activity: per day, last 7 days; this morning's import completes yesterday.

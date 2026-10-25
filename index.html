@@ -69,6 +69,10 @@
               <span id="sleepNight" class="muted"></span>
               <span id="sleepTotal" class="sleep-total"></span>
             </div>
+            <div class="health-actions">
+              <a id="healthRun" class="pill-link" href="#">📲 Get Health data</a>
+              <button type="button" id="healthPasteSmall" class="ghost pill-link">📋 Paste</button>
+            </div>
             <p id="activityLine" class="activity-line" hidden></p>
             <div class="sleep-grid">
               <label>Bedtime <input type="time" id="sleepBed"></label>
@@ -218,8 +222,17 @@
 
         <div class="rcard guide">
           <h3>How it works</h3>
-          <p>A web page can't read Apple Health or your calendar, but Apple's <strong>Shortcuts</strong> app can. You build one shortcut called "Diary check-in" and put it on your home screen. Each morning you tap it: it collects last night's sleep, the last week of activity (from Health, which includes the Fitness app) and your work calendar for the coming week, then opens this diary with it filled in.</p>
+          <p>A web page can't read Apple Health or your calendar, but Apple's <strong>Shortcuts</strong> app can. You build one shortcut called "Diary Check In". Each morning you start it: it collects last night's sleep, the last week of activity (from Health, which includes the Fitness app) and your work calendar for the coming week, then hands it to this diary.</p>
+          <p><strong>Diary on your Home Screen</strong> (recommended): the shortcut ends with <em>Copy to Clipboard</em>. In the check-in, tap <strong>📲 Get Health data</strong>; when you come back, tap <strong>📋 Paste Health data</strong>, then iPhone's "Paste". The Home Screen diary has its own storage, separate from Safari, and Safari can clear a site's data after 7 days unused, so the Home Screen is the safer home.</p>
+          <p><strong>Diary in Safari:</strong> the shortcut ends with <em>Open URLs</em> instead and fills the diary in one tap.</p>
           <p class="muted">The data travels after the <code>#</code> in the link, which browsers never send to a server. Nights you typed or edited yourself keep your values.</p>
+        </div>
+
+        <div class="rcard guide">
+          <h3>Shortcut name</h3>
+          <p class="muted">Must match the name in the Shortcuts app exactly, so the 📲 button can start it.</p>
+          <input id="shortcutName" class="paste-name" aria-label="Shortcut name" autocomplete="off" spellcheck="false">
+          <a id="healthRunSetup" class="pill-link" href="#">📲 Run it now</a>
         </div>
 
         <div class="rcard guide">
@@ -236,8 +249,8 @@
             <li><strong>Activity:</strong> for Steps → <code>STEPS</code>, Exercise Time → <code>EXERCISE</code>, Active Energy → <code>ENERGY</code>: <em>Find Health Samples</em> (last 7 days, <strong>Group By: Day</strong>) → <em>Repeat</em>: <code>STEPS|yyyy-MM-dd|Value</code> → add to "Lines".</li>
             <li><strong>Workouts</strong> (if offered): <code>WORKOUT|start|end|Type</code> → add to "Lines".</li>
             <li><strong>Work calendar:</strong> <em>Date</em> "today at 12:00 AM", <em>Adjust Date</em> +8 days → <em>Find Calendar Events</em> (your work calendar, start after today, before +8 days) → <em>Repeat</em>: <code>EVENT|start|end|Title</code> (or <code>busy</code> to keep titles private) → add to "Lines".</li>
-            <li><strong>Send</strong> (after the last End Repeat): <em>Combine Text</em> (it fills in Repeat Results: tap it → Clear Variable → pick Lines; with New Lines) → <em>URL Encode</em> → <em>Text</em> <code id="setupUrl"></code> + encoded text → <em>Open URLs</em>. Tap ▶: it works when this diary says "Imported N nights of sleep".</li>
-            <li><strong>Home screen:</strong> shortcut ⋯ → Add to Home Screen. Tap it each morning.</li>
+            <li><strong>Send</strong> (after the last End Repeat). Home Screen diary: <em>Combine Text</em> (Lines, New Lines) → <em>Copy to Clipboard</em>. Safari diary: <em>Combine Text</em> (it fills in Repeat Results: tap it → Clear Variable → pick Lines; with New Lines) → <em>URL Encode</em> → <em>Text</em> <code id="setupUrl"></code> + encoded text → <em>Open URLs</em>. Tap ▶: it works when this diary says "Imported N nights of sleep".</li>
+            <li><strong>Start it:</strong> Home Screen diary: 📲 Get Health data in the check-in, then 📋 Paste. Safari diary: shortcut ⋯ → Add to Home Screen, tap it each morning.</li>
           </ol>
           <p class="muted">Full guide: docs/iphone-shortcut.md in the project. Being checked on a real iPhone; tell me where a step looks different.</p>
         </div>
@@ -325,6 +338,10 @@
     <span class="muted">Enter to add · Esc to close</span>
   </div>
   <div id="toast" class="toast" role="status" hidden></div>
+  <div id="healthBar" class="health-bar" hidden>
+    <button type="button" id="healthPasteBtn" class="primary">📋 Paste Health data</button>
+    <button type="button" id="healthBarClose" class="ghost" aria-label="Not now">✕</button>
+  </div>
 
   <div id="lockScreen" class="lock-screen" hidden>
     <form id="unlockForm" class="lock-card" autocomplete="off">

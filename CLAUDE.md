@@ -16,7 +16,7 @@ with no framework, dependencies or build step.
 - `report.js`: weekly report, 💬 bring-to-therapy list, goal (loaded after `lock.js`,
   uses its globals; SVG charts)
 - `fx.js`: logo tilt, starfield, number count-up (loaded after `lock.js`)
-- `health.js`: imports the iPhone Shortcut text (`#health=` link or paste): sleep nights, activity, work calendar (loaded after `fx.js`; guide in `docs/iphone-shortcut.md`)
+- `health.js`: imports the iPhone Shortcut text (`#health=` link, or clipboard paste for the Home Screen app): sleep nights, activity, work calendar (loaded after `fx.js`; guide in `docs/iphone-shortcut.md`)
 - `docx.js`: tiny ZIP + .docx writer, no libraries (loaded before `brief.js`)
 - `brief.js`: Therapy Homework Brief, session to session (loaded after `report.js`;
   format + rules in `docs/brief-format.md`)

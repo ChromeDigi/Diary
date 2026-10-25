@@ -834,6 +834,28 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .file-btn:foc
 /* iPhone Health & calendar import (Phase 12) */
 .activity-line { margin: 0; font-size: 0.85rem; color: var(--muted); }
 .setup-link { width: 100%; font-size: 0.85rem; }
+
+/* Health data handoff (clipboard route for the Home Screen app) */
+.health-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill-link {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--glass-border); background: var(--glass); color: var(--text);
+  font-size: 0.85rem; font-weight: 600; text-decoration: none;
+}
+.health-bar {
+  position: fixed; top: calc(12px + env(safe-area-inset-top)); left: 50%; z-index: 35; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 999px;
+  width: max-content; max-width: calc(100vw - 32px);
+  background: var(--glass-strong); border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 18px 40px -12px var(--shadow);
+  animation: pop 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.health-bar .primary { padding: 12px 20px; font-size: 1rem; }
+.paste-name {
+  width: 100%; margin: 4px 0 10px; padding: 10px 14px; border-radius: 12px;
+  border: 1px solid var(--glass-border); background: var(--glass); font-size: 1rem;
+}
 .guide p { margin: 0 0 8px; line-height: 1.55; }
 .guide code { font-size: 0.85em; padding: 1px 6px; border-radius: 6px; background: var(--glass); border: 1px solid var(--glass-border); overflow-wrap: anywhere; }
 .steps { margin: 8px 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; line-height: 1.55; }
@@ -910,7 +932,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, .file-btn:foc
   }
   html, body { height: auto; background: #fff !important; filter: none !important; }
   .aurora, .sidebar, .report-actions, .week-nav button, .back, #refillBtn, #legend,
-  .note textarea, #entryForm, .placeholder, .fab, .quick-add, .toast, .talk-add,
+  .note textarea, #entryForm, .placeholder, .fab, .quick-add, .toast, .health-bar, .talk-add,
   .talk-remove, #goalInput { display: none !important; }
   .app { display: block; height: auto; padding: 0; }
   .editor { display: block !important; }

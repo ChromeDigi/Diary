@@ -234,6 +234,7 @@ window.addEventListener('DOMContentLoaded', runHealthLink);
 
 function renderSetup() {
   $('setupUrl').textContent = `${location.origin}${location.pathname}#health=`;
+  $('shortcutName').value = shortcutName();
   $('setupStatus').textContent = prefs.lastHealthImport
     ? `Last import: ${new Date(prefs.lastHealthImport).toLocaleString()}`
     : 'No import yet.';
@@ -249,6 +250,75 @@ function openSetup() {
   renderList();
   renderSetup();
 }
+
+// ---------- Clipboard handoff (Home Screen app) ----------
+// A Home Screen web app has its own storage, so a link the Shortcut opens lands in
+// Safari instead. Here the Shortcut copies its text; the diary pastes it on return.
+
+const SHORTCUT_DEFAULT = 'Diary Check In';
+const ASK_WINDOW_MS = 30 * 60 * 1000; // show "Paste" this long after starting the shortcut
+
+const shortcutName = () => (prefs.shortcutName || '').trim() || SHORTCUT_DEFAULT;
+
+function setRunLinks() {
+  const url = `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutName())}`;
+  ['healthRun', 'healthRunSetup'].forEach((id) => { $(id).href = url; });
+}
+
+function showHealthBar() {
+  const waiting = prefs.healthAskedAt && Date.now() - prefs.healthAskedAt < ASK_WINDOW_MS;
+  $('healthBar').hidden = !(waiting && !isLocked() && document.visibilityState === 'visible');
+}
+
+function stopWaiting() {
+  delete prefs.healthAskedAt;
+  savePrefs();
+  $('healthBar').hidden = true;
+}
+
+async function pasteHealth() {
+  let text = null;
+  try {
+    text = await navigator.clipboard.readText();
+  } catch {
+    text = null;
+  }
+  if (text == null) {
+    stopWaiting();
+    openSetup();
+    $('healthMsg').textContent = "Couldn't read the clipboard. Paste it here instead.";
+    $('healthPaste').focus();
+    return;
+  }
+  const parsed = parseHealthText(text);
+  if (parsed.lines === parsed.skipped) { // nothing the diary recognises
+    showToast('No Health data on the clipboard yet. Did the shortcut finish?');
+    return;
+  }
+  stopWaiting();
+  finishHealthLink(text);
+  // Don't leave health data lying on the clipboard (it can sync to other devices).
+  navigator.clipboard.writeText('').catch(() => {});
+}
+
+['healthRun', 'healthRunSetup'].forEach((id) => $(id).addEventListener('click', () => {
+  prefs.healthAskedAt = Date.now();
+  savePrefs();
+  showHealthBar();
+}));
+['healthPasteBtn', 'healthPasteSmall'].forEach((id) => $(id).addEventListener('click', pasteHealth));
+$('healthBarClose').addEventListener('click', stopWaiting);
+$('shortcutName').addEventListener('change', () => {
+  prefs.shortcutName = $('shortcutName').value.trim();
+  savePrefs();
+  $('shortcutName').value = shortcutName();
+  setRunLinks();
+});
+document.addEventListener('visibilitychange', showHealthBar);
+window.addEventListener('pageshow', showHealthBar);
+document.addEventListener('diary:unlocked', showHealthBar);
+setRunLinks();
+showHealthBar();
 
 $('setupBtn').addEventListener('click', openSetup);
 $('setupBack').addEventListener('click', closeEditor);
